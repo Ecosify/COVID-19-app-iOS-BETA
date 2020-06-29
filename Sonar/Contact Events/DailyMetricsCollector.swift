@@ -8,7 +8,8 @@
 
 import UIKit
 
-protocol DefaultObjectStoring {
+protocol DefaultObjectStoring
+{
     func object(forKey defaultName: String) -> Any?
     func set(_ value: Any?, forKey defaultName: String)
 }
@@ -17,7 +18,8 @@ extension UserDefaults: DefaultObjectStoring {}
 
 private let lastDailyMetricCollectionDateKey = "lastDailyMetricCollectionDate"
 
-class DailyMetricsCollector {
+class DailyMetricsCollector
+{
     private let contactEventRepository: ContactEventRepository
     private let notificationCenter: NotificationCenter
     private let defaults: DefaultObjectStoring
@@ -27,13 +29,14 @@ class DailyMetricsCollector {
         calendar.timeZone = TimeZone(identifier: "UTC")!
         return calendar
     }()
-    
+
     init(
         notificationCenter: NotificationCenter,
         contactEventRepository: ContactEventRepository,
         defaults: DefaultObjectStoring,
         monitor: AppMonitoring
-    ) {
+    )
+    {
         self.contactEventRepository = contactEventRepository
         self.notificationCenter = notificationCenter
         self.monitor = monitor
@@ -43,25 +46,29 @@ class DailyMetricsCollector {
         collectMetricsIfNeeded()
     }
 
-    deinit {
+    deinit
+    {
         notificationCenter.removeObserver(self)
     }
-    
-    @objc private func collectMetricsIfNeeded() {
+
+    @objc private func collectMetricsIfNeeded()
+    {
         if hasCollectedMetricsToday { return }
         collectMetrics()
         defaults.set(Date(), forKey: lastDailyMetricCollectionDateKey)
     }
-    
-    private func collectMetrics() {
+
+    private func collectMetrics()
+    {
         let events = contactEventRepository.contactEvents
         let yesterdayEvents = events.lazy.filter { self.calendar.isDateInYesterday($0.timestamp) }
         monitor.report(.collectedContactEvents(yesterday: yesterdayEvents.count, all: events.count))
     }
-    
-    private var hasCollectedMetricsToday: Bool {
+
+    private var hasCollectedMetricsToday: Bool
+    {
         guard let lastCollectionDate = defaults.object(forKey: lastDailyMetricCollectionDateKey) as? Date else { return false }
-        
+
         return lastCollectionDate > calendar.startOfDay(for: Date())
     }
 }

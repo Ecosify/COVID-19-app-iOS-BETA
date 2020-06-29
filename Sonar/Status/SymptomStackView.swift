@@ -8,35 +8,44 @@
 
 import UIKit
 
-class SymptomStackView: UIStackView {
-    var temperatureLabel: UILabel {
+class SymptomStackView: UIStackView
+{
+    var temperatureLabel: UILabel
+    {
         let label = UILabel()
         label.text = "High temperature"
         label.font = UIFont.preferredFont(forTextStyle: .subheadline)
         label.textColor = UIColor(named: "NHS Secondary Text")
         return label
     }
-    
-    var coughLabel: UILabel {
+
+    var coughLabel: UILabel
+    {
         let label = UILabel()
         label.text = "Continuous cough"
         label.font = UIFont.preferredFont(forTextStyle: .subheadline)
         label.textColor = UIColor(named: "NHS Secondary Text")
         return label
     }
-    
-    var symptoms: Set<Symptom>? {
-        didSet {
-            arrangedSubviews.forEach({view in
+
+    var symptoms: Set<Symptom>?
+    {
+        didSet
+        {
+            arrangedSubviews.forEach
+            { view in
                 view.removeFromSuperview()
-            })
-            
-            if let symptoms = symptoms {
-                if symptoms.contains(.temperature) {
+            }
+
+            if let symptoms = symptoms
+            {
+                if symptoms.contains(.temperature)
+                {
                     addArrangedSubview(temperatureLabel)
                 }
-                
-                if symptoms.contains(.cough) {
+
+                if symptoms.contains(.cough)
+                {
                     addArrangedSubview(coughLabel)
                 }
             }

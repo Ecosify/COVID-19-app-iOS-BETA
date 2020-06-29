@@ -9,25 +9,27 @@
 import Foundation
 import Logging
 
-struct ForwardingLogHandler: LogHandler {
-    
+struct ForwardingLogHandler: LogHandler
+{
     let label: String
-    
+
     private let send: (LogEvent) -> Void
-    
+
     var metadata = Logger.Metadata()
-    
+
     var logLevel = Logger.Level.debug
-    
-    init(label: String, send: @escaping (LogEvent) -> Void) {
+
+    init(label: String, send: @escaping (LogEvent) -> Void)
+    {
         self.label = label
         self.send = send
     }
-    
+
     func log(level: Logger.Level,
              message: Logger.Message,
              metadata: Logger.Metadata?,
-             file: String, function: String, line: UInt) {
+             file: String, function: String, line: UInt)
+    {
         send(
             LogEvent(
                 label: label,
@@ -41,14 +43,16 @@ struct ForwardingLogHandler: LogHandler {
             )
         )
     }
-    
-    subscript(metadataKey key: String) -> Logger.Metadata.Value? {
-        get {
+
+    subscript(metadataKey key: String) -> Logger.Metadata.Value?
+    {
+        get
+        {
             metadata[key]
         }
-        set {
+        set
+        {
             metadata[key] = newValue
         }
     }
-    
 }

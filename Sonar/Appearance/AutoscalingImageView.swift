@@ -8,12 +8,14 @@
 
 import UIKit
 
-//@IBDesignable
-class AutoscalingImageView: UIImageView, UpdatesBasedOnAccessibilityDisplayChanges {
+// @IBDesignable
+class AutoscalingImageView: UIImageView, UpdatesBasedOnAccessibilityDisplayChanges
+{
     private var widthConstraint: NSLayoutConstraint!
     private var scaleFactor: CGFloat!
-    
-    override func awakeFromNib() {
+
+    override func awakeFromNib()
+    {
         super.awakeFromNib()
 
         scaleFactor = bounds.size.width / FontScaling.bodyFontDefaultSize
@@ -28,11 +30,12 @@ class AutoscalingImageView: UIImageView, UpdatesBasedOnAccessibilityDisplayChang
             constant: 0
         )
         NSLayoutConstraint.activate([widthConstraint, aspectRatioConstraint])
-        
+
         updateBasedOnAccessibilityDisplayChanges()
     }
 
-    func updateBasedOnAccessibilityDisplayChanges() {
+    func updateBasedOnAccessibilityDisplayChanges()
+    {
         widthConstraint.constant = scaleFactor * FontScaling.bodyFontDefaultSize * FontScaling.currentFontSizeMultiplier()
     }
 }

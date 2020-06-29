@@ -9,7 +9,8 @@
 import Foundation
 import Logging
 
-struct LogEvent {
+struct LogEvent
+{
     var label: String
     var level: Logger.Level
     var message: Logger.Message

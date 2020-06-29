@@ -6,21 +6,24 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
-//@IBDesignable
-class PrimaryButton: ButtonWithDynamicType {
-
-    override var isEnabled: Bool {
-        didSet {
+// @IBDesignable
+class PrimaryButton: ButtonWithDynamicType
+{
+    override var isEnabled: Bool
+    {
+        didSet
+        {
             complainIfDisabled()
         }
     }
 
-    override func setUp() {
+    override func setUp()
+    {
         super.setUp()
-        
+
         layer.cornerRadius = 8
         clipsToBounds = true
         backgroundColor = UIColor(named: "NHS Button")
@@ -35,30 +38,37 @@ class PrimaryButton: ButtonWithDynamicType {
         complainIfDisabled()
     }
 
-    private func updateForAccessibility() {
-        if UIAccessibility.isInvertColorsEnabled {
+    private func updateForAccessibility()
+    {
+        if UIAccessibility.isInvertColorsEnabled
+        {
             layer.borderColor = UIColor.black.cgColor
             layer.borderWidth = 3
-        } else {
+        }
+        else
+        {
             layer.borderWidth = 0
         }
     }
 
-    private func complainIfDisabled() {
-        if !isEnabled {
+    private func complainIfDisabled()
+    {
+        if !isEnabled
+        {
             let msg = "PrimaryButton cannot be disabled. Show an alert instead."
             #if DEBUG
-            fatalError(msg)
+                fatalError(msg)
             #else
-            logger.warning(Logger.Message(stringLiteral: msg))
+                logger.warning(Logger.Message(stringLiteral: msg))
             #endif
         }
     }
-
 }
 
-extension PrimaryButton: UpdatesBasedOnAccessibilityDisplayChanges {
-    func updateBasedOnAccessibilityDisplayChanges() {
+extension PrimaryButton: UpdatesBasedOnAccessibilityDisplayChanges
+{
+    func updateBasedOnAccessibilityDisplayChanges()
+    {
         updateForAccessibility()
     }
 }

@@ -9,38 +9,47 @@
 import UIKit
 
 @IBDesignable
-class OnboardingLogoStrapline: UIView {
+class OnboardingLogoStrapline: UIView
+{
     @IBOutlet internal var titleLabel: UILabel!
 
-    override var intrinsicContentSize: CGSize {
+    override var intrinsicContentSize: CGSize
+    {
         return CGSize(width: UIView.noIntrinsicMetric, height: 64.0)
     }
 
-    static var nibName: String {
+    static var nibName: String
+    {
         String(describing: self)
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder)
+    {
         super.init(coder: aDecoder)
         commonInit()
     }
 
-    override init(frame: CGRect) {
+    override init(frame: CGRect)
+    {
         super.init(frame: frame)
         commonInit()
     }
 
-    override func prepareForInterfaceBuilder() {
+    override func prepareForInterfaceBuilder()
+    {
         super.prepareForInterfaceBuilder()
         commonInit()
     }
 
-    override func awakeFromNib() {
+    override func awakeFromNib()
+    {
         commonInit()
     }
 
-    func commonInit() {
-        guard let view = loadViewFromNib() else {
+    func commonInit()
+    {
+        guard let view = loadViewFromNib() else
+        {
             return
         }
 
@@ -61,7 +70,8 @@ class OnboardingLogoStrapline: UIView {
         accessibilityElements = [element]
     }
 
-    func loadViewFromNib() -> UIView? {
+    func loadViewFromNib() -> UIView?
+    {
         let nib = UINib(nibName: OnboardingLogoStrapline.nibName, bundle: Bundle(for: OnboardingLogoStrapline.self))
         return nib.instantiate(withOwner: self, options: nil).first as? UIView
     }

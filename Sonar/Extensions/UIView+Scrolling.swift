@@ -8,11 +8,16 @@
 
 import UIKit
 
-extension UIView {
-    func findAncestorScrollView() -> UIScrollView? {
-        if let scrollView = superview as? UIScrollView {
+extension UIView
+{
+    func findAncestorScrollView() -> UIScrollView?
+    {
+        if let scrollView = superview as? UIScrollView
+        {
             return scrollView
-        } else {
+        }
+        else
+        {
             return superview?.findAncestorScrollView()
         }
     }

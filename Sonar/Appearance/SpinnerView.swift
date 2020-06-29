@@ -8,13 +8,18 @@
 
 import QuartzCore
 
-class SpinnerView: AutoscalingImageView {
-
-    override var isHidden: Bool {
-        didSet {
-            if isHidden {
+class SpinnerView: AutoscalingImageView
+{
+    override var isHidden: Bool
+    {
+        didSet
+        {
+            if isHidden
+            {
                 layer.removeAnimation(forKey: "rotationAnimation")
-            } else {
+            }
+            else
+            {
                 layer.add(rotation, forKey: "rotationAnimation")
             }
         }
@@ -28,5 +33,4 @@ class SpinnerView: AutoscalingImageView {
         rotation.repeatCount = Float.greatestFiniteMagnitude
         return rotation
     }()
-
 }

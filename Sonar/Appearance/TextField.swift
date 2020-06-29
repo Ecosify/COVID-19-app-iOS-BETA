@@ -12,42 +12,55 @@ import UIKit
 // For most UI elements we'd create a color asset with separate light and dark
 // colors, but layers don't appear to change their colors when the UI style
 // changes after initial rendering.
-class TextField: UITextField {
-    override init(frame: CGRect) {
+class TextField: UITextField
+{
+    override init(frame: CGRect)
+    {
         super.init(frame: frame)
         updateForCurrentUIStyle()
     }
-    
-    required init?(coder: NSCoder) {
+
+    required init?(coder: NSCoder)
+    {
         super.init(coder: coder)
         updateForCurrentUIStyle()
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    override func traitCollectionDidChange(_: UITraitCollection?)
+    {
         updateForCurrentUIStyle()
     }
-    
-    private func updateForCurrentUIStyle() {
+
+    private func updateForCurrentUIStyle()
+    {
         layer.cornerRadius = 8
         layer.masksToBounds = true
         layer.borderWidth = 1
-        
-        if inDarkMode() {
+
+        if inDarkMode()
+        {
             layer.borderColor = UIColor.white.cgColor
-        } else {
+        }
+        else
+        {
             layer.borderColor = UIColor.black.cgColor
         }
     }
-    
-    private func inDarkMode() -> Bool {
-        if #available(iOS 12.0, *) {
-            switch traitCollection.userInterfaceStyle {
+
+    private func inDarkMode() -> Bool
+    {
+        if #available(iOS 12.0, *)
+        {
+            switch traitCollection.userInterfaceStyle
+            {
             case .dark:
                 return true
             default:
                 return false
             }
-        } else {
+        }
+        else
+        {
             return false
         }
     }

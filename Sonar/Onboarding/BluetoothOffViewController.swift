@@ -8,6 +8,7 @@
 
 import UIKit
 
-class BluetoothOffViewController: FixPermissionsViewController, Storyboarded {
+class BluetoothOffViewController: FixPermissionsViewController, Storyboarded
+{
     static let storyboardName = "Onboarding"
 }

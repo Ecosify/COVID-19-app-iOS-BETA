@@ -8,19 +8,22 @@
 
 import Foundation
 
-enum BluetoothAuthorizationStatus: CaseIterable {
+enum BluetoothAuthorizationStatus: CaseIterable
+{
     case notDetermined
     case allowed
     case denied
 }
 
-enum NotificationAuthorizationStatus: CaseIterable {
+enum NotificationAuthorizationStatus: CaseIterable
+{
     case notDetermined
     case allowed
     case denied
 }
 
-protocol AuthorizationManaging {
+protocol AuthorizationManaging
+{
     var bluetooth: BluetoothAuthorizationStatus { get }
     func waitForDeterminedBluetoothAuthorizationStatus(completion: @escaping (BluetoothAuthorizationStatus) -> Void)
     func notifications(completion: @escaping (NotificationAuthorizationStatus) -> Void)

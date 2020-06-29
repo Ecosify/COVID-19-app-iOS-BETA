@@ -8,14 +8,17 @@
 
 import UIKit
 
-protocol UpdatesBasedOnAccessibilityDisplayChanges {
+protocol UpdatesBasedOnAccessibilityDisplayChanges
+{
     func updateBasedOnAccessibilityDisplayChanges()
 }
 
-class FontScaling {
+class FontScaling
+{
     static let bodyFontDefaultSize = CGFloat(17.0)
-    
-    static func currentFontSizeMultiplier() -> CGFloat {
+
+    static func currentFontSizeMultiplier() -> CGFloat
+    {
         return CGFloat(UIFont.preferredFont(forTextStyle: .body).pointSize) / bodyFontDefaultSize
     }
 }

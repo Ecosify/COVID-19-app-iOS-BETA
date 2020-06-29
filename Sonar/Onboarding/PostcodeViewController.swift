@@ -8,14 +8,15 @@
 
 import UIKit
 
-fileprivate let maxLength = 4
+private let maxLength = 4
 
-class PostcodeViewController: UIViewController, Storyboarded {
+class PostcodeViewController: UIViewController, Storyboarded
+{
     static var storyboardName = "Onboarding"
-    
-    private var persistence: Persisting! = nil
-    private var notificationCenter: NotificationCenter! = nil
-    private var continueHandler: (() -> Void)! = nil
+
+    private var persistence: Persisting!
+    private var notificationCenter: NotificationCenter!
+    private var continueHandler: (() -> Void)!
 
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet var postcodeError: UILabel!
@@ -24,15 +25,18 @@ class PostcodeViewController: UIViewController, Storyboarded {
     @IBOutlet var continueAccessoryView: UIView!
     @IBOutlet var continueButton: PrimaryButton!
 
-    override var inputAccessoryView: UIView {
+    override var inputAccessoryView: UIView
+    {
         return continueAccessoryView
     }
 
-    override var canBecomeFirstResponder: Bool {
+    override var canBecomeFirstResponder: Bool
+    {
         return true
     }
 
-    func inject(persistence: Persisting, notificationCenter: NotificationCenter, continueHandler: @escaping () -> Void) {
+    func inject(persistence: Persisting, notificationCenter: NotificationCenter, continueHandler: @escaping () -> Void)
+    {
         self.persistence = persistence
         self.notificationCenter = notificationCenter
         self.continueHandler = continueHandler
@@ -40,9 +44,10 @@ class PostcodeViewController: UIViewController, Storyboarded {
 
     // MARK: - View lifecycle
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         postcodeError.isHidden = true
-        
+
         let text = postcodeDetail.text!
         let range = text.range(of: "not")
         let nsrange = NSRange(range!, in: text)
@@ -51,8 +56,8 @@ class PostcodeViewController: UIViewController, Storyboarded {
         postcodeDetail.attributedText = attrText
 
         // Hide the keyboard if the user taps anywhere else
-        self.view.addGestureRecognizer(UITapGestureRecognizer(target: postcodeField, action: #selector(resignFirstResponder)))
-        
+        view.addGestureRecognizer(UITapGestureRecognizer(target: postcodeField, action: #selector(resignFirstResponder)))
+
         notificationCenter.addObserver(self, selector: #selector(keyboardWasShown(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(keyboardWasHidden(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(updateBasedOnAccessibilityDisplayChanges(_:)), name: UIAccessibility.invertColorsStatusDidChangeNotification, object: nil)
@@ -60,8 +65,10 @@ class PostcodeViewController: UIViewController, Storyboarded {
 
     // MARK: - IBActions
 
-    @IBAction func didTapContinue() {
-        guard hasValidPostcode() else {
+    @IBAction func didTapContinue()
+    {
+        guard hasValidPostcode() else
+        {
             showPostcodeError()
             return
         }
@@ -71,7 +78,8 @@ class PostcodeViewController: UIViewController, Storyboarded {
         continueHandler()
     }
 
-    @objc private func keyboardWasShown(_ notification: Notification) {
+    @objc private func keyboardWasShown(_ notification: Notification)
+    {
         guard let kbFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
 
         let insets = UIEdgeInsets(top: 0, left: 0, bottom: kbFrame.size.height, right: 0)
@@ -81,37 +89,41 @@ class PostcodeViewController: UIViewController, Storyboarded {
         var visibleRegion = view.frame
         visibleRegion.size.height -= kbFrame.height
 
-        if !visibleRegion.contains(postcodeField.frame.origin) {
+        if !visibleRegion.contains(postcodeField.frame.origin)
+        {
             scrollView.scrollRectToVisible(postcodeField.frame, animated: true)
         }
     }
 
-    @objc private func keyboardWasHidden(_ notification: Notification) {
+    @objc private func keyboardWasHidden(_: Notification)
+    {
         let insets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         scrollView.contentInset = insets
         scrollView.scrollIndicatorInsets = insets
     }
 
-    @objc private func updateBasedOnAccessibilityDisplayChanges(_ notification: Notification) {
+    @objc private func updateBasedOnAccessibilityDisplayChanges(_: Notification)
+    {
         continueButton.updateBasedOnAccessibilityDisplayChanges()
     }
 
     // MARK: - Private
 
-    private var enteredPostcode: String {
-        get {
-            guard let rawPostcode = postcodeField?.text else { return "" }
-            return rawPostcode
-                .trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-                .uppercased()
-        }
+    private var enteredPostcode: String
+    {
+        guard let rawPostcode = postcodeField?.text else { return "" }
+        return rawPostcode
+            .trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+            .uppercased()
     }
-    
-    private func hasValidPostcode() -> Bool {
+
+    private func hasValidPostcode() -> Bool
+    {
         return PostcodeValidator.isValid(enteredPostcode)
     }
-    
-    private func showPostcodeError() {
+
+    private func showPostcodeError()
+    {
         scroll(after: {
             self.postcodeError.isHidden = false
             self.postcodeError.text = "Please enter the first part of a valid postcode. For example: PO30, E2, M1, EH1, L36".localized
@@ -122,31 +134,38 @@ class PostcodeViewController: UIViewController, Storyboarded {
     }
 }
 
-extension PostcodeViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+extension PostcodeViewController: UITextFieldDelegate
+{
+    func textFieldShouldReturn(_: UITextField) -> Bool
+    {
         didTapContinue()
 
         return true
     }
-        
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString: String) -> Bool {
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString: String) -> Bool
+    {
         let existingLength = textField.text?.count ?? 0
         return existingLength - range.length + replacementString.count <= maxLength
     }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
+
+    func textFieldDidBeginEditing(_ textField: UITextField)
+    {
         textField.layer.borderWidth = 3
         textField.layer.borderColor = UIColor(named: "NHS Dark Blue")!.cgColor
     }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
+
+    func textFieldDidEndEditing(_ textField: UITextField)
+    {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor(named: "NHS Text")!.cgColor
     }
 }
 
-class ContinueButtonAccessoryView: UIView {
-    override var intrinsicContentSize: CGSize {
+class ContinueButtonAccessoryView: UIView
+{
+    override var intrinsicContentSize: CGSize
+    {
         // This needs to be zero or else iOS adds
         // a height constraint onto the view based
         // on the frame height from Interface Builder.

@@ -6,12 +6,13 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import CoreBluetooth
+import UIKit
 
 import Logging
 
-protocol BluetoothNursery {
+protocol BluetoothNursery
+{
     var contactEventRepository: ContactEventRepository { get }
     var contactEventPersister: ContactEventPersister { get }
     var stateObserver: BluetoothStateObserving { get }
@@ -21,11 +22,11 @@ protocol BluetoothNursery {
     var hasStarted: Bool { get }
 }
 
-class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
-    
+class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate
+{
     static let centralRestoreIdentifier: String = "SonarCentralRestoreIdentifier"
     static let peripheralRestoreIdentifier: String = "SonarPeripheralRestoreIdentifier"
-    
+
     let contactEventPersister: ContactEventPersister
     let contactEventRepository: ContactEventRepository
     private var userNotifier: BluetoothStateUserNotifier?
@@ -42,7 +43,8 @@ class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
     public var listener: BTLEListener?
     public private(set) var stateObserver: BluetoothStateObserving = BluetoothStateObserver(initialState: .unknown)
 
-    private var central: CBCentralManager?
+    //private
+    public var central: CBCentralManager?  // JT 20.06.28
     private var peripheral: CBPeripheralManager?
 
     init(
@@ -50,12 +52,12 @@ class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
         userNotificationCenter: UserNotificationCenter,
         notificationCenter: NotificationCenter,
         monitor: AppMonitoring
-    ) {
+    )
+    {
         self.persistence = persistence
         self.userNotificationCenter = userNotificationCenter
         contactEventPersister = PlistPersister<UUID, ContactEvent>(fileName: "contactEvents")
         contactEventRepository = PersistingContactEventRepository(persister: contactEventPersister)
-        
 
         contactEventExpiryHandler = ContactEventExpiryHandler(notificationCenter: notificationCenter,
                                                               contactEventRepository: contactEventRepository)
@@ -71,20 +73,25 @@ class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
 
     // MARK: - BTLEListener
 
-    func startBluetooth(registration: Registration?) {
+    func startBluetooth(registration: Registration?)
+    {
         logger.info("Starting the bluetooth nursery with sonar id \(String(describing: registration?.id))")
 
         broadcastIdGenerator = SonarBroadcastPayloadGenerator(
             storage: SecureBroadcastRotationKeyStorage(),
             persistence: persistence,
-            provider: ConcreteBroadcastIdEncrypterProvider(persistence: persistence))
-        
+            provider: ConcreteBroadcastIdEncrypterProvider(persistence: persistence)
+        )
+
+        ///////
         let broadcaster = ConcreteBTLEBroadcaster(idGenerator: broadcastIdGenerator!)
         peripheral = CBPeripheralManager(delegate: broadcaster, queue: btleQueue, options: [
-            CBPeripheralManagerOptionRestoreIdentifierKey: ConcreteBluetoothNursery.peripheralRestoreIdentifier
+            CBPeripheralManagerOptionRestoreIdentifierKey: ConcreteBluetoothNursery.peripheralRestoreIdentifier,
         ])
         self.broadcaster = broadcaster
-        
+
+        ///////
+
         let listener = ConcreteBTLEListener(broadcaster: broadcaster, queue: btleQueue)
         central = CBCentralManager(delegate: listener, queue: btleQueue, options: [
             CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(true),
@@ -92,21 +99,22 @@ class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
             CBCentralManagerOptionShowPowerAlertKey: NSNumber(true),
         ])
         listener.delegate = contactEventRepository
-        listener.stateDelegate = self.stateObserver
+        listener.stateDelegate = stateObserver
         userNotifier = BluetoothStateUserNotifier(
             appStateReader: UIApplication.shared,
-            bluetoothStateObserver: self.stateObserver,
+            bluetoothStateObserver: stateObserver,
             scheduler: HumbleLocalNotificationScheduler(userNotificationCenter: userNotificationCenter)
         )
-        
+
         self.listener = listener
     }
-    
-    var hasStarted: Bool { return self.listener != nil }
-    
+
+    var hasStarted: Bool { return listener != nil }
+
     // MARK: - PersistenceDelegate
 
-    func persistence(_ persistence: Persisting, didUpdateRegistration registration: Registration) {
+    func persistence(_: Persisting, didUpdateRegistration registration: Registration)
+    {
         logger.info("saved registration with sonar id \(registration.id). will now update the broadcast id.")
 
         broadcaster?.updateIdentity()
@@ -114,7 +122,8 @@ class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
 
     // MARK: - Health
 
-    public var isHealthy: Bool {
+    public var isHealthy: Bool
+    {
         guard listener != nil else { return false }
         guard broadcaster != nil else { return false }
         guard userNotifier != nil else { return false }
@@ -130,4 +139,5 @@ class ConcreteBluetoothNursery: BluetoothNursery, PersistenceDelegate {
 }
 
 // MARK: - Logging
+
 private let logger = Logger(label: "BTLE")

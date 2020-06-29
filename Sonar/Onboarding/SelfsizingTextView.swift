@@ -8,17 +8,23 @@
 
 import UIKit
 
-class SelfsizingTextView : UITextView {
-    override var intrinsicContentSize: CGSize {
-        return sizeThatFits(CGSize(width: bounds.size.width, height: 1_000))
+class SelfsizingTextView: UITextView
+{
+    override var intrinsicContentSize: CGSize
+    {
+        return sizeThatFits(CGSize(width: bounds.size.width, height: 1000))
     }
-    
-    override var bounds: CGRect {
-        get {
+
+    override var bounds: CGRect
+    {
+        get
+        {
             super.bounds
         }
-        set {
-            if newValue.size.width != bounds.size.width {
+        set
+        {
+            if newValue.size.width != bounds.size.width
+            {
                 invalidateIntrinsicContentSize()
             }
             super.bounds = newValue

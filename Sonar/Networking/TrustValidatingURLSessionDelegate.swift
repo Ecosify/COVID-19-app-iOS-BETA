@@ -8,20 +8,24 @@
 
 import Foundation
 
-class TrustValidatingURLSessionDelegate: NSObject, URLSessionDelegate {
-    
+class TrustValidatingURLSessionDelegate: NSObject, URLSessionDelegate
+{
     private let validator: TrustValidating
-    
-    init(validator: TrustValidating) {
+
+    init(validator: TrustValidating)
+    {
         self.validator = validator
     }
-    
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if validator.canAccept(challenge.protectionSpace.serverTrust) {
+
+    func urlSession(_: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    {
+        if validator.canAccept(challenge.protectionSpace.serverTrust)
+        {
             completionHandler(.performDefaultHandling, nil)
-        } else {
+        }
+        else
+        {
             completionHandler(.cancelAuthenticationChallenge, nil)
         }
     }
-    
 }

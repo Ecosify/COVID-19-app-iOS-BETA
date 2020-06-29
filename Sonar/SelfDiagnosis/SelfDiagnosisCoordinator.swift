@@ -8,35 +8,39 @@
 
 import UIKit
 
-protocol Coordinator {
+protocol Coordinator
+{
     func start()
 }
 
-class SelfDiagnosisCoordinator: Coordinator {
+class SelfDiagnosisCoordinator: Coordinator
+{
     let navigationController: UINavigationController
     let persisting: Persisting
     let contactEventsUploader: ContactEventsUploading
     let statusViewController: StatusViewController
     let localNotificationScheduler: Scheduler
-    
+
     init(
         navigationController: UINavigationController,
         persisting: Persisting,
         contactEventsUploader: ContactEventsUploading,
         statusViewController: StatusViewController,
         localNotificationScheduler: Scheduler
-    ) {
+    )
+    {
         self.navigationController = navigationController
         self.persisting = persisting
         self.contactEventsUploader = contactEventsUploader
         self.statusViewController = statusViewController
         self.localNotificationScheduler = localNotificationScheduler
     }
-    
+
     var hasHighTemperature: Bool!
     var hasNewCough: Bool!
-    
-    func start() {
+
+    func start()
+    {
         let vc = QuestionSymptomsViewController.instantiate()
         vc.inject(
             pageNumber: 1,
@@ -47,14 +51,16 @@ class SelfDiagnosisCoordinator: Coordinator {
             questionYes: "TEMPERATURE_YES".localized,
             questionNo: "TEMPERATURE_NO".localized,
             buttonText: "Continue"
-        ) { hasHighTemperature in
+        )
+        { hasHighTemperature in
             self.hasHighTemperature = hasHighTemperature
             self.openCoughView()
         }
         navigationController.pushViewController(vc, animated: true)
     }
-    
-    func openCoughView() {
+
+    func openCoughView()
+    {
         let vc = QuestionSymptomsViewController.instantiate()
         vc.inject(
             pageNumber: 2,
@@ -65,14 +71,16 @@ class SelfDiagnosisCoordinator: Coordinator {
             questionYes: "COUGH_YES".localized,
             questionNo: "COUGH_NO".localized,
             buttonText: "Continue"
-        ) { hasNewCough in
+        )
+        { hasNewCough in
             self.hasNewCough = hasNewCough
             self.openSubmissionView()
         }
         navigationController.pushViewController(vc, animated: true)
     }
-    
-    func openSubmissionView() {
+
+    func openSubmissionView()
+    {
         let vc = SymptomsSummaryViewController.instantiate()
         vc.inject(
             persisting: persisting,

@@ -6,54 +6,65 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import CoreBluetooth
+import UIKit
 
-enum SetupProblem {
+enum SetupProblem
+{
     case bluetoothOff
     case bluetoothPermissions
     case notificationPermissions
 }
 
-struct SetupProblemDiagnoser {
-    
+struct SetupProblemDiagnoser
+{
     func diagnose(
         notificationAuthorization: NotificationAuthorizationStatus,
         bluetoothAuthorization: BluetoothAuthorizationStatus,
         bluetoothStatus: CBManagerState
-        ) -> SetupProblem? {
-        if bluetoothStatus == .poweredOff {
+    ) -> SetupProblem?
+    {
+        if bluetoothStatus == .poweredOff
+        {
             return .bluetoothOff
-        } else if bluetoothAuthorization == .denied {
+        }
+        else if bluetoothAuthorization == .denied
+        {
             return .bluetoothPermissions
-        } else if notificationAuthorization == .denied {
+        }
+        else if notificationAuthorization == .denied
+        {
             return .notificationPermissions
-        } else {
+        }
+        else
+        {
             return nil
         }
     }
-    
 }
 
-class SetupChecker {
+class SetupChecker
+{
     private let authorizationManager: AuthorizationManaging
     private let bluetoothNursery: BluetoothNursery
-    
-    
-    init(authorizationManager: AuthorizationManaging, bluetoothNursery: BluetoothNursery) {
+
+    init(authorizationManager: AuthorizationManaging, bluetoothNursery: BluetoothNursery)
+    {
         self.authorizationManager = authorizationManager
         self.bluetoothNursery = bluetoothNursery
     }
-    
-    func check(_ callback: @escaping (SetupProblem?) -> Void) {
+
+    func check(_ callback: @escaping (SetupProblem?) -> Void)
+    {
         var notificationStatus: NotificationAuthorizationStatus?
         var btStatus: CBManagerState?
-        
+
         let diagnoser = SetupProblemDiagnoser()
-        
-        func maybeFinish() {
+
+        func maybeFinish()
+        {
             guard let notificationStatus = notificationStatus, let btStatus = btStatus else { return }
-            
+
             let problem = diagnoser.diagnose(
                 notificationAuthorization: notificationStatus,
                 bluetoothAuthorization: authorizationManager.bluetooth,
@@ -61,13 +72,15 @@ class SetupChecker {
             )
             callback(problem)
         }
-        
-        self.bluetoothNursery.stateObserver.observeUntilKnown { status in
+
+        bluetoothNursery.stateObserver.observeUntilKnown
+        { status in
             btStatus = status
             maybeFinish()
         }
 
-        authorizationManager.notifications { s in
+        authorizationManager.notifications
+        { s in
             notificationStatus = s
             maybeFinish()
         }

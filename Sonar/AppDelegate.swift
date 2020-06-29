@@ -6,39 +6,43 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import CoreData
 import Firebase
 import FirebaseInstanceID
 import Logging
+import UIKit
+import NSLoggerSwift    // JT 20.06.28
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate
+{
     var window: UIWindow?
 
     let notificationCenter = NotificationCenter.default
     let userNotificationCenter = UNUserNotificationCenter.current()
     let authorizationManager = AuthorizationManager()
-    
+
     let trustValidator = PublicKeyValidator(trustedKeyHashes: ["hETpgVvaLC0bvcGG3t0cuqiHvr4XyP2MTwCiqhgRWwU="])
-    
+
     let storageChecker = StorageChecker(service: "uk.nhs.nhsx.sonars.storage_marker")
-    
+
     lazy var monitor: AppMonitoring = AppCenterMonitor.shared
-    
+
     lazy var urlSession: Session = URLSession(trustValidator: trustValidator)
 
     lazy var dispatcher: RemoteNotificationDispatching = RemoteNotificationDispatcher(
         notificationCenter: notificationCenter,
-        userNotificationCenter: userNotificationCenter)
+        userNotificationCenter: userNotificationCenter
+    )
 
     lazy var remoteNotificationManager: RemoteNotificationManager = ConcreteRemoteNotificationManager(
         firebase: FirebaseApp.self,
         messagingFactory: { Messaging.messaging() },
         userNotificationCenter: userNotificationCenter,
         notificationAcknowledger: notificationAcknowledger,
-        dispatcher: dispatcher)
-    
+        dispatcher: dispatcher
+    )
+
     lazy var registrationService: RegistrationService = ConcreteRegistrationService(
         session: urlSession,
         persistence: persistence,
@@ -46,7 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         remoteNotificationDispatcher: dispatcher,
         notificationCenter: notificationCenter,
         monitor: monitor,
-        timeoutQueue: DispatchQueue.main)
+        timeoutQueue: DispatchQueue.main
+    )
 
     lazy var persistence: Persisting = Persistence(
         secureRegistrationStorage: SecureRegistrationStorage(),
@@ -56,13 +61,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     )
 
     lazy var bluetoothNursery: BluetoothNursery = ConcreteBluetoothNursery(persistence: persistence, userNotificationCenter: userNotificationCenter, notificationCenter: notificationCenter, monitor: monitor)
-    
+
     lazy var onboardingCoordinator: OnboardingCoordinating = OnboardingCoordinator(
         persistence: persistence,
         authorizationManager: authorizationManager,
         bluetoothNursery: bluetoothNursery
     )
-    
+
     lazy var contactEventsUploader: ContactEventsUploading = ContactEventsUploader(
         persisting: persistence,
         contactEventRepository: bluetoothNursery.contactEventRepository,
@@ -97,26 +102,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         session: urlSession
     )
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // MARK: -
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool
+    {
         #if DEBUG
-        if let window = UITestResponder.makeWindowForTesting() {
-            self.window = window
-            return true
-        }
+            if let window = UITestResponder.makeWindowForTesting()
+            {
+                self.window = window
+                return true
+            }
         #endif
 
         LoggingManager.bootstrap()
         logger.info("Launched", metadata: Logger.Metadata(launchOptions: launchOptions))
 
+        Logger2.shared.log(.network, .info, "NSLoggerSwift Logger2 Launched")  // JT 20.06.27 reroute log to echo to NSLogger app on mac
+        // see NSLogger.swift   Logger -> Logger2
+
+        
         application.registerForRemoteNotifications()
 
         remoteNotificationManager.configure()
-        dispatcher.registerHandler(forType: .status) { userInfo, completion in
+        dispatcher.registerHandler(forType: .status)
+        { userInfo, completion in
             self.statusNotificationHandler.handle(userInfo: userInfo, completion: completion)
         }
 
         Appearance.setup()
-        
+
         writeBuildInfo()
 
         let rootVC = RootViewController()
@@ -135,58 +149,66 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             statusProvider: statusProvider,
             uiQueue: DispatchQueue.main
         )
-        
+
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = rootVC
         window?.makeKeyAndVisible()
-        
+
         // Check registration as well as bluetoothPermissionRequested, because the user may have registered
         // on an old version of the app that didn't record bluetoothPermissionRequested.
-        if persistence.bluetoothPermissionRequested || persistence.registration != nil {
+        if persistence.bluetoothPermissionRequested || persistence.registration != nil
+        {
             bluetoothNursery.startBluetooth(registration: persistence.registration)
         }
 
         return true
     }
 
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        logger.info("Received notification", metadata: Logger.Metadata(dictionary: userInfo))
-        
+    func application(_: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void)
+    {
+        logger.info("🔲v🔲 Received notification", metadata: Logger.Metadata(dictionary: userInfo))
+
         remoteNotificationManager.handleNotification(userInfo: userInfo, completionHandler: { result in
-             completionHandler(result)
+            completionHandler(result)
         })
     }
-    
-    func applicationWillTerminate(_ application: UIApplication) {
+
+    func applicationWillTerminate(_: UIApplication)
+    {
         logger.info("Terminating")
 
         scheduleLocalNotification()
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
+    func applicationWillResignActive(_: UIApplication)
+    {
         logger.info("Will Resign Active")
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
+    func applicationDidBecomeActive(_: UIApplication)
+    {
         logger.info("Did Become Active")
 
         try? contactEventsUploader.ensureUploading()
         linkingIdManager.fetchLinkingId { _ in }
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+    func applicationDidEnterBackground(_: UIApplication)
+    {
         logger.info("Did Enter Background")
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
+    func applicationWillEnterForeground(_: UIApplication)
+    {
         logger.info("Will Enter Foreground")
     }
 
     func application(
-        _ application: UIApplication,
-        handleEventsForBackgroundURLSession identifier: String,
+        _: UIApplication,
+        handleEventsForBackgroundURLSession _: String,
         completionHandler: @escaping () -> Void
-    ) {
+    )
+    {
         // https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622941-application
         // https://developer.apple.com/documentation/foundation/url_loading_system/downloading_files_in_the_background
 
@@ -201,8 +223,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     // MARK: - Private
-    
-    private func scheduleLocalNotification() {
+
+    private func scheduleLocalNotification()
+    {
         let scheduler = HumbleLocalNotificationScheduler(userNotificationCenter: userNotificationCenter)
 
         scheduler.scheduleLocalNotification(
@@ -213,12 +236,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             repeats: false
         )
     }
-    
-    private func writeBuildInfo() {
+
+    private func writeBuildInfo()
+    {
         persistence.lastInstalledBuildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
         persistence.lastInstalledVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     }
 }
 
 // MARK: - Logging
+
 private let logger = Logger(label: "Application")

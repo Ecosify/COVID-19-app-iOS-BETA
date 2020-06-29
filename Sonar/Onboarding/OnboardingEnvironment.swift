@@ -8,19 +8,20 @@
 
 import Foundation
 
-class OnboardingEnvironment {
-    
+class OnboardingEnvironment
+{
     let persistence: Persisting
     let authorizationManager: AuthorizationManaging
     let remoteNotificationManager: RemoteNotificationManager
     let notificationCenter: NotificationCenter
-    
+
     init(
         persistence: Persisting,
         authorizationManager: AuthorizationManaging,
         remoteNotificationManager: RemoteNotificationManager,
         notificationCenter: NotificationCenter
-    ) {
+    )
+    {
         self.persistence = persistence
         self.authorizationManager = authorizationManager
         self.remoteNotificationManager = remoteNotificationManager

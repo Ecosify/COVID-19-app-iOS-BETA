@@ -9,10 +9,12 @@
 import UIKit
 
 @IBDesignable
-class AnswerButton: UIControl, UpdatesBasedOnAccessibilityDisplayChanges {
-
-    @IBInspectable var text: String? {
-        didSet {
+class AnswerButton: UIControl, UpdatesBasedOnAccessibilityDisplayChanges
+{
+    @IBInspectable var text: String?
+    {
+        didSet
+        {
             textLabel.text = text
             accessibilityLabel = textLabel.accessibilityLabel
         }
@@ -22,11 +24,16 @@ class AnswerButton: UIControl, UpdatesBasedOnAccessibilityDisplayChanges {
     let imageView = UIImageView()
     private var imageWidthConstraint: NSLayoutConstraint!
 
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
+    override var isSelected: Bool
+    {
+        didSet
+        {
+            if isSelected
+            {
                 accessibilityTraits.insert(.selected)
-            } else {
+            }
+            else
+            {
                 accessibilityTraits.remove(.selected)
             }
 
@@ -36,16 +43,21 @@ class AnswerButton: UIControl, UpdatesBasedOnAccessibilityDisplayChanges {
         }
     }
 
-    override var intrinsicContentSize: CGSize {
+    override var intrinsicContentSize: CGSize
+    {
         CGSize(width: UIView.noIntrinsicMetric, height: 100)
     }
 
-    override func awakeFromNib() {
+    override func awakeFromNib()
+    {
         accessibilityTraits = [.button]
         isAccessibilityElement = true
-        if #available(iOS 13.0, *) {
+        if #available(iOS 13.0, *)
+        {
             accessibilityRespondsToUserInteraction = true
-        } else {
+        }
+        else
+        {
             // Fallback on earlier versions
         }
 
@@ -61,8 +73,8 @@ class AnswerButton: UIControl, UpdatesBasedOnAccessibilityDisplayChanges {
         imageWidthConstraint = imageView.widthAnchor.constraint(equalToConstant: 24)
         imageWidthConstraint.identifier = "ImageWidth"
         NSLayoutConstraint.activate([
-             imageWidthConstraint,
-             imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor)
+            imageWidthConstraint,
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor),
         ])
 
         let stack = UIStackView(arrangedSubviews: [
@@ -85,30 +97,35 @@ class AnswerButton: UIControl, UpdatesBasedOnAccessibilityDisplayChanges {
         ])
         textLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         imageView.setContentHuggingPriority(.required, for: .horizontal)
-        
+
         updateBasedOnAccessibilityDisplayChanges()
     }
-    
-    func updateBasedOnAccessibilityDisplayChanges() {
+
+    func updateBasedOnAccessibilityDisplayChanges()
+    {
         resizeImage()
         updateBorder()
     }
-    
-    private func resizeImage() {
+
+    private func resizeImage()
+    {
         let scaleFactor = textLabel.font.pointSize / defaultFontSize
         imageWidthConstraint.constant = defaultImageSize * scaleFactor
     }
 
-    private func updateBorder() {
-        if UIAccessibility.isInvertColorsEnabled {
+    private func updateBorder()
+    {
+        if UIAccessibility.isInvertColorsEnabled
+        {
             layer.borderColor = UIColor.black.cgColor
             layer.borderWidth = 3
-        } else {
+        }
+        else
+        {
             layer.borderWidth = 0
         }
     }
-
 }
 
-fileprivate let defaultFontSize = CGFloat(17.0)
-fileprivate let defaultImageSize = CGFloat(24.0)
+private let defaultFontSize = CGFloat(17.0)
+private let defaultImageSize = CGFloat(24.0)

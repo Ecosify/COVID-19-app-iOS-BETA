@@ -8,20 +8,27 @@
 
 import UIKit
 
-class SmartInvertBorderView: UIView {
-    override func awakeFromNib() {
+class SmartInvertBorderView: UIView
+{
+    override func awakeFromNib()
+    {
         super.awakeFromNib()
 
         updateBasedOnAccessibilityDisplayChanges()
     }
 }
 
-extension SmartInvertBorderView: UpdatesBasedOnAccessibilityDisplayChanges {
-    func updateBasedOnAccessibilityDisplayChanges() {
-        if UIAccessibility.isInvertColorsEnabled {
+extension SmartInvertBorderView: UpdatesBasedOnAccessibilityDisplayChanges
+{
+    func updateBasedOnAccessibilityDisplayChanges()
+    {
+        if UIAccessibility.isInvertColorsEnabled
+        {
             layer.borderColor = UIColor.black.cgColor
             layer.borderWidth = 3
-        } else {
+        }
+        else
+        {
             layer.borderWidth = 0
         }
     }

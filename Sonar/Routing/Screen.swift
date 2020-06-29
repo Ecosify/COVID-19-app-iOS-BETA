@@ -8,8 +8,8 @@
 
 import Foundation
 
-enum Screen: String, Codable {
-    
+enum Screen: String, Codable
+{
     // Flows
     case onboarding
 

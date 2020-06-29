@@ -9,23 +9,26 @@
 import Foundation
 import Logging
 
-struct NoOpLogHandler: LogHandler {
-    
-    func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, file: String, function: String, line: UInt) {
+struct NoOpLogHandler: LogHandler
+{
+    func log(level _: Logger.Level, message _: Logger.Message, metadata _: Logger.Metadata?, file _: String, function _: String, line _: UInt)
+    {
         // Nothing
     }
-    
+
     var metadata: Logger.Metadata = [:]
-    
+
     var logLevel: Logger.Level = .critical
-    
-    subscript(metadataKey key: String) -> Logger.Metadata.Value? {
-        get {
+
+    subscript(metadataKey key: String) -> Logger.Metadata.Value?
+    {
+        get
+        {
             metadata[key]
         }
-        set {
+        set
+        {
             metadata[key] = newValue
         }
     }
-    
 }

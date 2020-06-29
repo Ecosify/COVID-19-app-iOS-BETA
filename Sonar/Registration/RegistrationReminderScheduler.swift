@@ -8,28 +8,32 @@
 
 import UIKit
 
-protocol RegistrationReminderScheduler {
+protocol RegistrationReminderScheduler
+{
     func schedule()
     func cancel()
 }
 
-class ConcreteRegistrationReminderScheduler: RegistrationReminderScheduler {
+class ConcreteRegistrationReminderScheduler: RegistrationReminderScheduler
+{
     private let userNotificationCenter: UserNotificationCenter
-    
-    init(userNotificationCenter: UserNotificationCenter) {
+
+    init(userNotificationCenter: UserNotificationCenter)
+    {
         self.userNotificationCenter = userNotificationCenter
     }
 
-    func schedule() {
+    func schedule()
+    {
         let notificationScheduler = HumbleLocalNotificationScheduler(userNotificationCenter: userNotificationCenter)
         let body = "Your registration has failed. Please open the app and select retry to complete your registration."
         notificationScheduler.scheduleLocalNotification(title: nil, body: body, interval: 24 * 60 * 60, identifier: identifier, repeats: true)
     }
-    
-    func cancel() {
+
+    func cancel()
+    {
         userNotificationCenter.removePendingNotificationRequests(withIdentifiers: [identifier])
     }
-    
 }
 
 private let identifier = "registration.reminder"

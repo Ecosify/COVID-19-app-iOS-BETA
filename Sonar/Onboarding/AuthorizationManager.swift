@@ -9,38 +9,44 @@
 import CoreBluetooth
 import Foundation
 
-class AuthorizationManager: AuthorizationManaging {
-    
+class AuthorizationManager: AuthorizationManaging
+{
     // WARNING: Don't call this except in situations where it's certain that the nursery will
     // have been started already (or at least, very soon). If the nursery is not started, the
     // completion handler will never be called.
     func waitForDeterminedBluetoothAuthorizationStatus(
         completion: @escaping (BluetoothAuthorizationStatus) -> Void
-    ) {
-        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
-            if #available(iOS 13.1, *) {
-                switch CBManager.authorization {
+    )
+    {
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true)
+        { timer in
+            if #available(iOS 13.1, *)
+            {
+                switch CBManager.authorization
+                {
                 case .notDetermined:
                     return
-                    
+
                 case .allowedAlways:
                     completion(.allowed)
                     timer.invalidate()
-                    
+
                 default:
                     completion(.denied)
                     timer.invalidate()
                 }
-            } else {
-                switch CBPeripheralManager.authorizationStatus() {
-                    
+            }
+            else
+            {
+                switch CBPeripheralManager.authorizationStatus()
+                {
                 case .notDetermined:
                     return
-                    
+
                 case .authorized:
                     completion(.allowed)
                     timer.invalidate()
-                    
+
                 default:
                     completion(.denied)
                     timer.invalidate()
@@ -48,10 +54,13 @@ class AuthorizationManager: AuthorizationManaging {
             }
         }
     }
-    
-    var bluetooth: BluetoothAuthorizationStatus {
-        if #available(iOS 13.1, *) {
-            switch CBManager.authorization {
+
+    var bluetooth: BluetoothAuthorizationStatus
+    {
+        if #available(iOS 13.1, *)
+        {
+            switch CBManager.authorization
+            {
             case .notDetermined:
                 return .notDetermined
             case .restricted:
@@ -63,8 +72,11 @@ class AuthorizationManager: AuthorizationManaging {
             @unknown default:
                 fatalError()
             }
-        } else {
-            switch CBPeripheralManager.authorizationStatus() {
+        }
+        else
+        {
+            switch CBPeripheralManager.authorizationStatus()
+            {
             case .notDetermined:
                 return .notDetermined
             case .restricted:
@@ -79,10 +91,13 @@ class AuthorizationManager: AuthorizationManaging {
         }
     }
 
-    func notifications(completion: @escaping (NotificationAuthorizationStatus) -> Void) {
+    func notifications(completion: @escaping (NotificationAuthorizationStatus) -> Void)
+    {
         let userNotificationCenter = UNUserNotificationCenter.current()
-        userNotificationCenter.getNotificationSettings { notificationSettings in
-            switch notificationSettings.authorizationStatus {
+        userNotificationCenter.getNotificationSettings
+        { notificationSettings in
+            switch notificationSettings.authorizationStatus
+            {
             case .notDetermined:
                 completion(.notDetermined)
             case .denied:
@@ -98,5 +113,4 @@ class AuthorizationManager: AuthorizationManaging {
             }
         }
     }
-
 }

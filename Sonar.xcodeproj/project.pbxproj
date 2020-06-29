@@ -103,6 +103,8 @@
 		21F373FF2433844D00926FB8 /* ContactEventRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F373FE2433844D00926FB8 /* ContactEventRepository.swift */; };
 		21F37402243384D400926FB8 /* PersistingContactEventRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F37401243384D400926FB8 /* PersistingContactEventRepositoryTests.swift */; };
 		21F374042434C4BF00926FB8 /* LiveBTLEDebuggerTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F374032434C4BF00926FB8 /* LiveBTLEDebuggerTableViewController.swift */; };
+		253C5D4B24AA96A800ED378F /* NSLoggerSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 253C5D4A24AA96A800ED378F /* NSLoggerSwift.framework */; };
+		253C5D4C24AA96A800ED378F /* NSLoggerSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 253C5D4A24AA96A800ED378F /* NSLoggerSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6FC63C31241641B8007C8BF3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FC63C30241641B8007C8BF3 /* AppDelegate.swift */; };
 		6FC63C38241641BA007C8BF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6FC63C37241641BA007C8BF3 /* Assets.xcassets */; };
 		6FC63C3B241641BA007C8BF3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6FC63C39241641BA007C8BF3 /* LaunchScreen.storyboard */; };
@@ -270,6 +272,20 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		253C5D4D24AA96A800ED378F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				253C5D4C24AA96A800ED378F /* NSLoggerSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		068B8AB9245C11C0000EAB4C /* upload.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = upload.yml; sourceTree = "<group>"; };
 		068B8ABA245C11C0000EAB4C /* unit-tests.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "unit-tests.yml"; sourceTree = "<group>"; };
@@ -374,6 +390,8 @@
 		21F373FE2433844D00926FB8 /* ContactEventRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactEventRepository.swift; sourceTree = "<group>"; };
 		21F37401243384D400926FB8 /* PersistingContactEventRepositoryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersistingContactEventRepositoryTests.swift; sourceTree = "<group>"; };
 		21F374032434C4BF00926FB8 /* LiveBTLEDebuggerTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveBTLEDebuggerTableViewController.swift; sourceTree = "<group>"; };
+		253C5D4A24AA96A800ED378F /* NSLoggerSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NSLoggerSwift.framework; path = Thirdparty/Carthage/Build/iOS/NSLoggerSwift.framework; sourceTree = "<group>"; };
+		2540486824A9057C00A417D0 /* NSLoggerSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NSLoggerSwift.framework; path = "Thirdparty/Carthage/Checkouts/NSLogger/DerivedData/NSLogger/Build/Products/Debug-iphoneos/NSLoggerSwift.framework"; sourceTree = "<group>"; };
 		6FC63C2D241641B8007C8BF3 /* Sonar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sonar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FC63C30241641B8007C8BF3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6FC63C37241641BA007C8BF3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -566,6 +584,7 @@
 				F78CEB71242B9305002254AD /* GoogleDataTransport.framework in Frameworks */,
 				F78CEB5B242B7EC0002254AD /* FirebaseCoreDiagnostics.framework in Frameworks */,
 				F78CEB6A242B8D3F002254AD /* FirebaseInstanceID.framework in Frameworks */,
+				253C5D4B24AA96A800ED378F /* NSLoggerSwift.framework in Frameworks */,
 				F78CEB6C242B8D84002254AD /* FirebaseInstallations.framework in Frameworks */,
 				F7D62F2724406FC8004C32A2 /* Logging in Frameworks */,
 				F78CEB5A242B7EC0002254AD /* FirebaseMessaging.framework in Frameworks */,
@@ -856,6 +875,8 @@
 		21B3D2E62429115600573061 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2540486824A9057C00A417D0 /* NSLoggerSwift.framework */,
+				253C5D4A24AA96A800ED378F /* NSLoggerSwift.framework */,
 				89C8B20B245C377F009CCE80 /* AppCenter.framework */,
 				89C8B20C245C377F009CCE80 /* AppCenterAnalytics.framework */,
 				89DA61F52449A5A80079A761 /* GoogleAppMeasurement.framework */,
@@ -1323,6 +1344,7 @@
 				6FC63C2A241641B8007C8BF3 /* Frameworks */,
 				6FC63C2B241641B8007C8BF3 /* Resources */,
 				8947F834245AE41600C4F1BB /* Embed Build info */,
+				253C5D4D24AA96A800ED378F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1759,6 +1781,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F618A562245C682500D89517 /* Sonar.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = XHQK92K282;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Thirdparty/Carthage/Checkouts/NSLogger/DerivedData/NSLogger/Build/Products/Debug-iphoneos",
+					"$(PROJECT_DIR)/Thirdparty/Carthage/Build/iOS",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.metatheory.Covid;
 			};
 			name = Debug;
 		};
@@ -1766,6 +1799,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F618A562245C682500D89517 /* Sonar.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = XHQK92K282;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Thirdparty/Carthage/Checkouts/NSLogger/DerivedData/NSLogger/Build/Products/Debug-iphoneos",
+					"$(PROJECT_DIR)/Thirdparty/Carthage/Build/iOS",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.metatheory.Covid;
 			};
 			name = Release;
 		};

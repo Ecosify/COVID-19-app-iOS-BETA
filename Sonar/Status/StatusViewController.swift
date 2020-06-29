@@ -6,10 +6,11 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
-class StatusViewController: UIViewController, Storyboarded {
+class StatusViewController: UIViewController, Storyboarded
+{
     static let storyboardName = "Status"
 
     private let content = StatusContent.shared
@@ -23,39 +24,39 @@ class StatusViewController: UIViewController, Storyboarded {
 
     private lazy var drawerPresentationManager = DrawerPresentation()
     private let localNotificationScheduler = LocalNotifcationScheduler(userNotificationCenter: UNUserNotificationCenter.current())
-    
+
     @IBOutlet var registratonStatusView: UIView!
     @IBOutlet var registrationStatusIcon: UIImageView!
     @IBOutlet var registrationSpinner: SpinnerView!
     @IBOutlet var registrationStatusText: UILabel!
     @IBOutlet var registrationRetryButton: UIButton!
 
-    @IBOutlet weak var symptomStackView: SymptomStackView!
-    @IBOutlet weak var diagnosisStatusView: UIView!
-    @IBOutlet weak var diagnosisHighlightView: UIView!
-    @IBOutlet weak var diagnosisTitleLabel: UILabel!
-    @IBOutlet weak var readLatestAdviceLabel: UILabel!
-    @IBOutlet weak var diagnosisDetailLabel: UILabel!
-    @IBOutlet weak var disclosureIndicator: UIImageView!
-    
-    @IBOutlet weak var howAreYouFeelingView: UIView!
-    @IBOutlet weak var feelUnwellView: UIView!
-    @IBOutlet weak var notRightTitleLabel: UILabel!
-    @IBOutlet weak var notRightSubtitleLabel: UILabel!
-    
-    @IBOutlet weak var nothingToDoLabel: UILabel!
-    @IBOutlet weak var noSymptomsLabel: UILabel!
+    @IBOutlet var symptomStackView: SymptomStackView!
+    @IBOutlet var diagnosisStatusView: UIView!
+    @IBOutlet var diagnosisHighlightView: UIView!
+    @IBOutlet var diagnosisTitleLabel: UILabel!
+    @IBOutlet var readLatestAdviceLabel: UILabel!
+    @IBOutlet var diagnosisDetailLabel: UILabel!
+    @IBOutlet var disclosureIndicator: UIImageView!
 
-    @IBOutlet weak var redStatusView: UIStackView!
-    @IBOutlet weak var bookTestLabel: UILabel!
-    @IBOutlet weak var bookTestPhoneButton: LinkButton!
+    @IBOutlet var howAreYouFeelingView: UIView!
+    @IBOutlet var feelUnwellView: UIView!
+    @IBOutlet var notRightTitleLabel: UILabel!
+    @IBOutlet var notRightSubtitleLabel: UILabel!
 
-    @IBOutlet weak var healthcareWorkersInstructionsView: UIControl!
+    @IBOutlet var nothingToDoLabel: UILabel!
+    @IBOutlet var noSymptomsLabel: UILabel!
 
-    @IBOutlet weak var linkingIDButton: UIButton!
-    @IBOutlet weak var nhs111label: LinkButton!
-    @IBOutlet weak var medicalAdviceLabel: UILabel!
-    
+    @IBOutlet var redStatusView: UIStackView!
+    @IBOutlet var bookTestLabel: UILabel!
+    @IBOutlet var bookTestPhoneButton: LinkButton!
+
+    @IBOutlet var healthcareWorkersInstructionsView: UIControl!
+
+    @IBOutlet var linkingIDButton: UIButton!
+    @IBOutlet var nhs111label: LinkButton!
+    @IBOutlet var medicalAdviceLabel: UILabel!
+
     func inject(
         persistence: Persisting,
         registrationService: RegistrationService,
@@ -64,7 +65,8 @@ class StatusViewController: UIViewController, Storyboarded {
         linkingIdManager: LinkingIdManaging,
         statusProvider: StatusProviding,
         localeProvider: LocaleProvider
-    ) {
+    )
+    {
         self.persistence = persistence
         self.registrationService = registrationService
         self.contactEventsUploader = contactEventsUploader
@@ -73,10 +75,11 @@ class StatusViewController: UIViewController, Storyboarded {
         self.statusProvider = statusProvider
         self.localeProvider = localeProvider
     }
-        
-    override func viewDidLoad() {
+
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
-                
+
         registrationRetryButton.setTitle("RETRY".localized, for: .normal)
 
         diagnosisStatusView.layer.cornerRadius = 8
@@ -111,21 +114,25 @@ class StatusViewController: UIViewController, Storyboarded {
 
         healthcareWorkersInstructionsView.accessibilityLabel = "Important instructions for healthcare workers"
         healthcareWorkersInstructionsView.accessibilityTraits = .button
-        
+
         notificationCenter.addObserver(self, selector: #selector(showRegisteredStatus), name: RegistrationCompletedNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(showRegistrationFailedStatus), name: RegistrationFailedNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(reload), name: UIApplication.didBecomeActiveNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(reload), name: PotentiallyExposedNotification, object: nil)
-        
+
         linkingIDButton.accessibilityLabel = "Show my reference code"
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
 
-        if persistence.registration != nil {
+        if persistence.registration != nil
+        {
             showRegisteredStatus()
-        } else {
+        }
+        else
+        {
             logger.info("Attempting to register because the view will appear")
             register()
         }
@@ -133,11 +140,13 @@ class StatusViewController: UIViewController, Storyboarded {
         reload()
     }
 
-    @objc func diagnosisStatusTapped() {
+    @objc func diagnosisStatusTapped()
+    {
         UIApplication.shared.open(content[statusProvider.status].readUrl)
     }
 
-    @IBAction func notRightTapped() {
+    @IBAction func notRightTapped()
+    {
         let navigationController = UINavigationController()
         let coordinator = SelfDiagnosisCoordinator(
             navigationController: navigationController,
@@ -151,50 +160,61 @@ class StatusViewController: UIViewController, Storyboarded {
         present(navigationController, animated: true)
     }
 
-    @IBAction func bookTestButtonTapped() {
+    @IBAction func bookTestButtonTapped()
+    {
         UIApplication.shared.open(URL(string: "tel://448005404900")!)
     }
 
-    @IBAction func medicalWorkerButtonTapped() {
+    @IBAction func medicalWorkerButtonTapped()
+    {
         let vc = MedicalWorkerInstructionsViewController.instantiate()
         showDrawer(vc)
     }
 
-    @IBAction func linkingIdButtonTapped() {
+    @IBAction func linkingIdButtonTapped()
+    {
         let vc = LinkingIdViewController.instantiate()
         vc.inject(persisting: persistence, linkingIdManager: linkingIdManager)
         showDrawer(vc)
     }
 
-    private func showDrawer(_ vc: UIViewController) {
+    private func showDrawer(_ vc: UIViewController)
+    {
         vc.modalPresentationStyle = .custom
         vc.transitioningDelegate = drawerPresentationManager
         present(vc, animated: true)
     }
 
-    @IBAction func nhs111Tapped(_ sender: UIButton) {
+    @IBAction func nhs111Tapped(_: UIButton)
+    {
         UIApplication.shared.open(content[statusProvider.status].nhsCoronavirusUrl)
     }
 
-    @IBAction func retryRegistrationTapped() {
+    @IBAction func retryRegistrationTapped()
+    {
         logger.info("Attempting to register because the user tapped the retry button")
         register()
     }
 
-    @IBAction func unwindFromSelfDiagnosis(unwindSegue: UIStoryboardSegue) {
+    @IBAction func unwindFromSelfDiagnosis(unwindSegue _: UIStoryboardSegue)
+    {
         reload()
     }
 
-    @IBAction func unwindFromLinkingId(unwindSegue: UIStoryboardSegue) {
-    }
+    @IBAction func unwindFromLinkingId(unwindSegue _: UIStoryboardSegue)
+    {}
 
-    @objc func reload() {
+    @objc func reload()
+    {
         guard view != nil else { return }
-        
+
         let readLatestAdviceText: String
-        if statusProvider.status == .blue {
+        if statusProvider.status == .blue
+        {
             readLatestAdviceText = "Read current advice"
-        } else {
+        }
+        else
+        {
             readLatestAdviceText = "Read what to do next"
         }
         readLatestAdviceLabel.attributedText = NSAttributedString(
@@ -205,58 +225,68 @@ class StatusViewController: UIViewController, Storyboarded {
                 .font: UIFont.preferredFont(forTextStyle: .headline),
             ]
         )
-        
-        switch statusProvider.status {
-            case .blue:
-                diagnosisHighlightView.backgroundColor = UIColor(named: "NHS Highlight")
-                diagnosisTitleLabel.text = "Follow the current advice to stop the spread of coronavirus".localized
-                diagnosisDetailLabel.isHidden = true
-                howAreYouFeelingView.isHidden = false
-                nothingToDoLabel.isHidden = false
-                redStatusView.isHidden = true
-                healthcareWorkersInstructionsView.isHidden = false
-            case .amber:
-                nothingToDoLabel.isHidden = true
-                diagnosisHighlightView.backgroundColor = UIColor(named: "NHS Warm Yellow")
-                diagnosisTitleLabel.text = "You have been near someone who has coronavirus symptoms".localized
-                
-                if let expiry = statusProvider.amberExpiryDate {
-                    diagnosisDetailLabel.isHidden = false
-                    diagnosisDetailLabel.text = detailForAmberWithExpiry(expiry)
-                } else {
-                    diagnosisDetailLabel.isHidden = true
-                }
-                
-                howAreYouFeelingView.isHidden = false
-                redStatusView.isHidden = true
-                healthcareWorkersInstructionsView.isHidden = false
-            case .red:
-                diagnosisHighlightView.backgroundColor = UIColor(named: "NHS Warm Yellow")
-                diagnosisTitleLabel.text = "Your symptoms indicate you may have coronavirus".localized
-                diagnosisDetailLabel.isHidden = false
 
-                if let selfDiagnosis = persistence.selfDiagnosis {
-                    switch selfDiagnosis.type {
-                    case .initial:
-                        detailForInitialSelfDiagnosis(selfDiagnosis)
-                    case .subsequent:
-                        if selfDiagnosis.symptoms.contains(.temperature) {
-                            diagnosisDetailLabel.text = "Follow this advice until your temperature returns to normal"
-                        }
+        switch statusProvider.status
+        {
+        case .blue:
+            diagnosisHighlightView.backgroundColor = UIColor(named: "NHS Highlight")
+            diagnosisTitleLabel.text = "Follow the current advice to stop the spread of coronavirus".localized
+            diagnosisDetailLabel.isHidden = true
+            howAreYouFeelingView.isHidden = false
+            nothingToDoLabel.isHidden = false
+            redStatusView.isHidden = true
+            healthcareWorkersInstructionsView.isHidden = false
+        case .amber:
+            nothingToDoLabel.isHidden = true
+            diagnosisHighlightView.backgroundColor = UIColor(named: "NHS Warm Yellow")
+            diagnosisTitleLabel.text = "You have been near someone who has coronavirus symptoms".localized
+
+            if let expiry = statusProvider.amberExpiryDate
+            {
+                diagnosisDetailLabel.isHidden = false
+                diagnosisDetailLabel.text = detailForAmberWithExpiry(expiry)
+            }
+            else
+            {
+                diagnosisDetailLabel.isHidden = true
+            }
+
+            howAreYouFeelingView.isHidden = false
+            redStatusView.isHidden = true
+            healthcareWorkersInstructionsView.isHidden = false
+        case .red:
+            diagnosisHighlightView.backgroundColor = UIColor(named: "NHS Warm Yellow")
+            diagnosisTitleLabel.text = "Your symptoms indicate you may have coronavirus".localized
+            diagnosisDetailLabel.isHidden = false
+
+            if let selfDiagnosis = persistence.selfDiagnosis
+            {
+                switch selfDiagnosis.type
+                {
+                case .initial:
+                    detailForInitialSelfDiagnosis(selfDiagnosis)
+                case .subsequent:
+                    if selfDiagnosis.symptoms.contains(.temperature)
+                    {
+                        diagnosisDetailLabel.text = "Follow this advice until your temperature returns to normal"
                     }
-                } else {
-                    // Can't happen, but don't show the placeholder text if it does.
-                    diagnosisDetailLabel.isHidden = true
                 }
-                
-                howAreYouFeelingView.isHidden = true
-                redStatusView.isHidden = false
-                healthcareWorkersInstructionsView.isHidden = true
+            }
+            else
+            {
+                // Can't happen, but don't show the placeholder text if it does.
+                diagnosisDetailLabel.isHidden = true
+            }
+
+            howAreYouFeelingView.isHidden = true
+            redStatusView.isHidden = false
+            healthcareWorkersInstructionsView.isHidden = true
         }
-        
+
         symptomStackView.symptoms = persistence.selfDiagnosis?.symptoms
-        
-        if let diagnosis = persistence.selfDiagnosis, diagnosis.hasExpired {
+
+        if let diagnosis = persistence.selfDiagnosis, diagnosis.hasExpired
+        {
             localNotificationScheduler.removePendingDiagnosisNotification()
             let symptomsPromptViewController = SymptomsPromptViewController.instantiate()
             symptomsPromptViewController.modalPresentationStyle = .custom
@@ -265,20 +295,23 @@ class StatusViewController: UIViewController, Storyboarded {
             present(symptomsPromptViewController, animated: true)
         }
     }
-    
-    func updatePrompt() {
+
+    func updatePrompt()
+    {
         let coughUpdateViewController = CoughUpdateViewController.instantiate()
         coughUpdateViewController.modalPresentationStyle = .custom
         coughUpdateViewController.transitioningDelegate = drawerPresentationManager
         present(coughUpdateViewController, animated: true)
     }
-    
-    private func register() {
+
+    private func register()
+    {
         showRegisteringStatus()
         registrationService.register()
     }
-    
-    @objc private func showRegisteredStatus() {
+
+    @objc private func showRegisteredStatus()
+    {
         registrationStatusText.text = "REGISTRATION_OK".localized
         registrationStatusIcon.image = UIImage(named: "Registration_status_ok")
         hideSpinner()
@@ -288,8 +321,9 @@ class StatusViewController: UIViewController, Storyboarded {
 
         UIAccessibility.post(notification: .layoutChanged, argument: registratonStatusView)
     }
-    
-    @objc private func showRegistrationFailedStatus() {
+
+    @objc private func showRegistrationFailedStatus()
+    {
         registrationStatusText.text = "REGISTRATION_FAILED".localized
         registrationStatusIcon.image = UIImage(named: "Registration_status_failure")
         hideSpinner()
@@ -299,36 +333,42 @@ class StatusViewController: UIViewController, Storyboarded {
 
         UIAccessibility.post(notification: .layoutChanged, argument: registratonStatusView)
     }
-    
-    private func showRegisteringStatus() {
+
+    private func showRegisteringStatus()
+    {
         registrationStatusText.text = "REGISTRATION_IN_PROGRESS".localized
         showSpinner()
         registrationStatusText.textColor = UIColor(named: "NHS Text")
         registratonStatusView.backgroundColor = nil
         registrationRetryButton.isHidden = true
     }
-    
-    private func showSpinner() {
+
+    private func showSpinner()
+    {
         registrationSpinner.isHidden = false
         registrationStatusIcon.isHidden = true
     }
-    
-    private func hideSpinner() {
+
+    private func hideSpinner()
+    {
         registrationSpinner.isHidden = true
         registrationStatusIcon.isHidden = false
     }
-    
-    private func detailForAmberWithExpiry(_ expiry: Date) -> String {
+
+    private func detailForAmberWithExpiry(_ expiry: Date) -> String
+    {
         let detailFmt = "Follow this advice until %@".localized
         return String(format: detailFmt, localizedDate(expiry))
     }
-    
-    private func detailForInitialSelfDiagnosis(_ selfDiagnosis: SelfDiagnosis) {
+
+    private func detailForInitialSelfDiagnosis(_ selfDiagnosis: SelfDiagnosis)
+    {
         let detailFmt = "Follow this advice until %@, at which point this app will notify you to update your symptoms.".localized
         diagnosisDetailLabel.text = String(format: detailFmt, localizedDate(selfDiagnosis.expiryDate))
     }
-    
-    private func localizedDate(_ date: Date) -> String {
+
+    private func localizedDate(_ date: Date) -> String
+    {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = localeProvider.locale
         dateFormatter.setLocalizedDateFormatFromTemplate("MMMMd")
@@ -338,9 +378,10 @@ class StatusViewController: UIViewController, Storyboarded {
 
 private let logger = Logger(label: "StatusViewController")
 
-class TouchCancellingScrollView: UIScrollView {
-    override func touchesShouldCancel(in view: UIView) -> Bool {
+class TouchCancellingScrollView: UIScrollView
+{
+    override func touchesShouldCancel(in _: UIView) -> Bool
+    {
         true
     }
 }
-

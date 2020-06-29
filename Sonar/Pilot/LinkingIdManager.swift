@@ -8,11 +8,13 @@
 
 import Foundation
 
-protocol LinkingIdManaging {
+protocol LinkingIdManaging
+{
     func fetchLinkingId(completion: @escaping (LinkingId?) -> Void)
 }
 
-class LinkingIdManager: LinkingIdManaging {
+class LinkingIdManager: LinkingIdManaging
+{
     let persisting: Persisting
     let session: Session
 
@@ -20,7 +22,8 @@ class LinkingIdManager: LinkingIdManaging {
         notificationCenter: NotificationCenter,
         persisting: Persisting,
         session: Session
-    ) {
+    )
+    {
         self.persisting = persisting
         self.session = session
 
@@ -28,26 +31,32 @@ class LinkingIdManager: LinkingIdManaging {
             forName: RegistrationCompletedNotification,
             object: nil,
             queue: nil
-        ) { _ in
+        )
+        { _ in
             self.fetchLinkingId { _ in }
         }
     }
 
-    func fetchLinkingId(completion: @escaping (LinkingId?) -> Void) {
-        if let linkingId = persisting.linkingId {
+    func fetchLinkingId(completion: @escaping (LinkingId?) -> Void)
+    {
+        if let linkingId = persisting.linkingId
+        {
             completion(linkingId)
             return
         }
 
-        guard let registration = persisting.registration else {
+        guard let registration = persisting.registration else
+        {
             completion(nil)
             return
         }
 
         let request = LinkingIdRequest(registration: registration)
-        session.execute(request) { result in
-            switch result {
-            case .success(let linkingId):
+        session.execute(request)
+        { result in
+            switch result
+            {
+            case let .success(linkingId):
                 self.persisting.linkingId = linkingId
                 completion(linkingId)
             case .failure:

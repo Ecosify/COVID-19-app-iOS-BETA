@@ -8,7 +8,8 @@
 
 import Foundation
 
-struct UITestPayload: Codable {
+struct UITestPayload: Codable
+{
     static let environmentVariableName = "UI_TEST_PAYLOAD"
     var screen: Screen
 }

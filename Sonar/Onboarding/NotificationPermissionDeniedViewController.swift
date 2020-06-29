@@ -8,6 +8,7 @@
 
 import UIKit
 
-class NotificationPermissionDeniedViewController: FixPermissionsViewController, Storyboarded {
+class NotificationPermissionDeniedViewController: FixPermissionsViewController, Storyboarded
+{
     static let storyboardName = "Onboarding"
 }

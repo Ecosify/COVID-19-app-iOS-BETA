@@ -10,7 +10,8 @@ import Foundation
 
 import Logging
 
-protocol UserNotificationCenter: class {
+protocol UserNotificationCenter: class
+{
     var delegate: UNUserNotificationCenterDelegate? { get set }
 
     func requestAuthorization(
@@ -22,124 +23,147 @@ protocol UserNotificationCenter: class {
         _ request: UNNotificationRequest,
         withCompletionHandler completionHandler: ((Error?) -> Void)?
     )
-    
+
     func removePendingNotificationRequests(withIdentifiers identifiers: [String])
-
 }
 
-extension UNUserNotificationCenter: UserNotificationCenter {
-}
+extension UNUserNotificationCenter: UserNotificationCenter
+{}
 
-protocol RemoteNotificationDispatching {
+protocol RemoteNotificationDispatching
+{
     var pushToken: String? { get }
 
     func registerHandler(forType type: RemoteNotificationType, handler: @escaping RemoteNotificationHandler)
     func removeHandler(forType type: RemoteNotificationType)
 
     func hasHandler(forType type: RemoteNotificationType) -> Bool
-    func handleNotification(userInfo: [AnyHashable : Any], completionHandler: @escaping RemoteNotificationCompletionHandler)
+    func handleNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping RemoteNotificationCompletionHandler)
 
     func receiveRegistrationToken(fcmToken: String)
 }
 
-
-class RemoteNotificationDispatcher: RemoteNotificationDispatching {
+class RemoteNotificationDispatcher: RemoteNotificationDispatching
+{
     var pushToken: String?
-    
+
     private var handlers = HandlerDictionary()
     private let notificationCenter: NotificationCenter
     private let userNotificationCenter: UserNotificationCenter
-    
-    init(notificationCenter: NotificationCenter, userNotificationCenter: UserNotificationCenter) {
+
+    init(notificationCenter: NotificationCenter, userNotificationCenter: UserNotificationCenter)
+    {
         self.notificationCenter = notificationCenter
         self.userNotificationCenter = userNotificationCenter
     }
 
-    func registerHandler(forType type: RemoteNotificationType, handler: @escaping RemoteNotificationHandler) {
+    func registerHandler(forType type: RemoteNotificationType, handler: @escaping RemoteNotificationHandler)
+    {
         handlers[type] = handler
     }
-    
-    func removeHandler(forType type: RemoteNotificationType) {
+
+    func removeHandler(forType type: RemoteNotificationType)
+    {
         handlers[type] = nil
     }
-    
-    func hasHandler(forType type: RemoteNotificationType) -> Bool {
+
+    func hasHandler(forType type: RemoteNotificationType) -> Bool
+    {
         return handlers.hasHandler(forType: type)
     }
-    
-    func handleNotification(userInfo: [AnyHashable : Any], completionHandler: @escaping RemoteNotificationCompletionHandler) {
-        guard let type = notificationType(userInfo: userInfo) else {
+
+    func handleNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping RemoteNotificationCompletionHandler)
+    {
+        guard let type = notificationType(userInfo: userInfo) else
+        {
             logger.warning("unrecognized notification with user info: \(userInfo)")
             completionHandler(.failed)
             return
         }
-        
+
         logger.debug("Remote notification is a \(type)")
-        
-        guard let handler = handlers[type] else {
+
+        guard let handler = handlers[type] else
+        {
             logger.warning("No registered handler for type \(type)")
             completionHandler(.failed)
             return
         }
-        
+
         handler(userInfo, completionHandler)
     }
-    
-    func receiveRegistrationToken(fcmToken: String) {
+
+    func receiveRegistrationToken(fcmToken: String)
+    {
         pushToken = fcmToken
         notificationCenter.post(name: PushTokenReceivedNotification, object: fcmToken, userInfo: nil)
     }
-    
-    private func notificationType(userInfo: [AnyHashable : Any]) -> RemoteNotificationType? {
-        if userInfo["activationCode"] as? String != nil {
+
+    private func notificationType(userInfo: [AnyHashable: Any]) -> RemoteNotificationType?
+    {
+        if userInfo["activationCode"] as? String != nil
+        {
             return .registrationActivationCode
-        } else if userInfo["status"] as? String != nil {
+        }
+        else if userInfo["status"] as? String != nil
+        {
             return .status
-        } else {
+        }
+        else
+        {
             return nil
         }
     }
 }
 
-private class HandlerDictionary {
-    private var handlers: [RemoteNotificationType : RemoteNotificationHandler] = [:]
-    
-    subscript(index: RemoteNotificationType) -> RemoteNotificationHandler? {
-        get {
+private class HandlerDictionary
+{
+    private var handlers: [RemoteNotificationType: RemoteNotificationHandler] = [:]
+
+    subscript(index: RemoteNotificationType) -> RemoteNotificationHandler?
+    {
+        get
+        {
             let handler = handlers[index]
-            
-            if handler == nil {
+
+            if handler == nil
+            {
                 complainAboutMissingHandler(type: index)
             }
-            
+
             return handler
         }
-        set {
-            if newValue != nil && handlers[index] != nil {
+        set
+        {
+            if newValue != nil, handlers[index] != nil
+            {
                 complainAboutHandlerReplacement(type: index)
             }
-            
+
             handlers[index] = newValue
         }
     }
-    
-    func hasHandler(forType type: RemoteNotificationType) -> Bool {
+
+    func hasHandler(forType type: RemoteNotificationType) -> Bool
+    {
         return handlers[type] != nil
     }
-    
-    private func complainAboutMissingHandler(type: RemoteNotificationType) {
+
+    private func complainAboutMissingHandler(type: RemoteNotificationType)
+    {
         #if DEBUG
-        fatalError("Remote notification HandlerDictionary: no handler for notification type \(type)")
+            fatalError("Remote notification HandlerDictionary: no handler for notification type \(type)")
         #else
-        logger.warning("Remote notification HandlerDictionary: no handler for notification type \(type)")
+            logger.warning("Remote notification HandlerDictionary: no handler for notification type \(type)")
         #endif
     }
-    
-    private func complainAboutHandlerReplacement(type: RemoteNotificationType) {
+
+    private func complainAboutHandlerReplacement(type: RemoteNotificationType)
+    {
         #if DEBUG
-        fatalError("Remote notification HandlerDictionary: attempted to replace handler for \(type)")
+            fatalError("Remote notification HandlerDictionary: attempted to replace handler for \(type)")
         #else
-        logger.warning("Remote notification HandlerDictionary replacing existing handler for \(type)")
+            logger.warning("Remote notification HandlerDictionary replacing existing handler for \(type)")
         #endif
     }
 }

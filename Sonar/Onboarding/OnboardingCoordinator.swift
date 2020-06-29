@@ -10,17 +10,20 @@ import CoreBluetooth
 import Foundation
 import Logging
 
-protocol OnboardingCoordinating {
+protocol OnboardingCoordinating
+{
     typealias State = OnboardingCoordinator.State
-    
+
     func determineIsOnboardingRequired(completion: @escaping (Bool) -> Void)
     func state(completion: @escaping (State) -> Void)
 }
 
-class OnboardingCoordinator: OnboardingCoordinating {
+class OnboardingCoordinator: OnboardingCoordinating
+{
     private typealias BluetoothCompletion = (State?) -> Void
 
-    enum State: Equatable {
+    enum State: Equatable
+    {
         case initial, partialPostcode, permissions, bluetoothDenied, bluetoothOff, notificationsDenied, done
     }
 
@@ -33,42 +36,57 @@ class OnboardingCoordinator: OnboardingCoordinating {
         persistence: Persisting,
         authorizationManager: AuthorizationManaging,
         bluetoothNursery: BluetoothNursery
-    ) {
+    )
+    {
         self.persistence = persistence
         self.authorizationManager = authorizationManager
         self.bluetoothNursery = bluetoothNursery
     }
-    
-    func determineIsOnboardingRequired(completion: @escaping (Bool) -> Void) {
-        if (persistence.partialPostcode == nil) || (authorizationManager.bluetooth == .notDetermined) {
+
+    func determineIsOnboardingRequired(completion: @escaping (Bool) -> Void)
+    {
+        if (persistence.partialPostcode == nil) || (authorizationManager.bluetooth == .notDetermined)
+        {
             completion(true)
-        } else {
-            authorizationManager.notifications { notifications in
+        }
+        else
+        {
+            authorizationManager.notifications
+            { notifications in
                 completion(notifications == .notDetermined)
             }
         }
     }
 
-    func state(completion: @escaping (State) -> Void) {
-        guard hasShownInitialScreen || persistence.partialPostcode != nil else {
+    func state(completion: @escaping (State) -> Void)
+    {
+        guard hasShownInitialScreen || persistence.partialPostcode != nil else
+        {
             hasShownInitialScreen = true
             completion(.initial)
             return
         }
 
-        guard persistence.partialPostcode != nil else {
+        guard persistence.partialPostcode != nil else
+        {
             completion(.partialPostcode)
             return
         }
-                
-        maybeStateFromBluetooth { [weak self] state in
-            if state != nil {
+
+        maybeStateFromBluetooth
+        { [weak self] state in
+            if state != nil
+            {
                 completion(state!)
-            } else {
+            }
+            else
+            {
                 guard let self = self else { return }
 
-                self.authorizationManager.notifications { notificationStatus in
-                    switch (notificationStatus) {
+                self.authorizationManager.notifications
+                { notificationStatus in
+                    switch notificationStatus
+                    {
                     case .notDetermined:
                         completion(.permissions)
                     case .denied:
@@ -81,33 +99,38 @@ class OnboardingCoordinator: OnboardingCoordinating {
         }
     }
 
-    private func maybeStateFromBluetooth(completion: @escaping BluetoothCompletion) {
-        switch self.authorizationManager.bluetooth {
+    private func maybeStateFromBluetooth(completion: @escaping BluetoothCompletion)
+    {
+        switch authorizationManager.bluetooth
+        {
         case .notDetermined:
             completion(.permissions)
         case .denied:
             completion(.bluetoothDenied)
         case .allowed:
-            let btStateObserver = self.bluetoothNursery.stateObserver
-            
-            if !bluetoothNursery.hasStarted {
+            let btStateObserver = bluetoothNursery.stateObserver
+
+            if !bluetoothNursery.hasStarted
+            {
                 logger.error("Bluetooth is allowed but not started. This should never happen unless the persistence was cleared in a debug build.")
                 // Because BT is allowed, we can safely start listening without any risk of showing
                 // a permissions prompt at the wrong time.
                 bluetoothNursery.startBluetooth(registration: persistence.registration)
             }
 
-            btStateObserver.observeUntilKnown { btState in
-                if btState == .poweredOff {
+            btStateObserver.observeUntilKnown
+            { btState in
+                if btState == .poweredOff
+                {
                     completion(.bluetoothOff)
-                } else {
+                }
+                else
+                {
                     completion(nil)
                 }
             }
         }
     }
-    
 }
-
 
 private let logger = Logger(label: "OnboardingCoordinator")

@@ -10,7 +10,8 @@ import Foundation
 
 typealias LinkingId = String
 
-class LinkingIdRequest: SecureRequest, Request {
+class LinkingIdRequest: SecureRequest, Request
+{
     typealias ResponseType = LinkingId
 
     let method: HTTPMethod
@@ -18,7 +19,8 @@ class LinkingIdRequest: SecureRequest, Request {
 
     let decoder = JSONDecoder()
 
-    init(registration: Registration) {
+    init(registration: Registration)
+    {
         urlable = .path("/api/residents/\(registration.id.uuidString)/linking-id")
 
         let bodyData = "{}".data(using: .utf8)!
@@ -30,13 +32,14 @@ class LinkingIdRequest: SecureRequest, Request {
         ])
     }
 
-    func parse(_ data: Data) throws -> LinkingId {
+    func parse(_ data: Data) throws -> LinkingId
+    {
         let response = try decoder.decode(LinkingIdResponse.self, from: data)
         return response.linkingId
     }
-
 }
 
-fileprivate struct LinkingIdResponse: Codable {
+private struct LinkingIdResponse: Codable
+{
     let linkingId: LinkingId
 }

@@ -8,17 +8,20 @@
 
 import UIKit
 
-class SymptomsPromptViewController: UIViewController, Storyboarded {
+class SymptomsPromptViewController: UIViewController, Storyboarded
+{
     static var storyboardName = "Status"
     var persistence: Persisting!
     var statusViewController: StatusViewController!
-        
-    func inject(persistence: Persisting, statusViewController: StatusViewController) {
+
+    func inject(persistence: Persisting, statusViewController: StatusViewController)
+    {
         self.persistence = persistence
         self.statusViewController = statusViewController
     }
-    
-    @IBAction func updateSymptoms(_ sender: Any) {
+
+    @IBAction func updateSymptoms(_: Any)
+    {
         let navigationController = UINavigationController()
         let coordinator = UpdateDiagnosisCoordinator(
             navigationController: navigationController,
@@ -30,8 +33,9 @@ class SymptomsPromptViewController: UIViewController, Storyboarded {
         dismiss(animated: true, completion: nil)
         statusViewController.present(navigationController, animated: true)
     }
-    
-    @IBAction func noSymptoms(_ sender: Any) {
+
+    @IBAction func noSymptoms(_: Any)
+    {
         persistence.selfDiagnosis = nil
         statusViewController.reload()
         dismiss(animated: true, completion: nil)

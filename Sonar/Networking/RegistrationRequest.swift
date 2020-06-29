@@ -8,24 +8,25 @@
 
 import Foundation
 
-struct RegistrationRequest: Request {
-    
-    private struct RegistrationRequestJSON: Codable {
+struct RegistrationRequest: Request
+{
+    private struct RegistrationRequestJSON: Codable
+    {
         let pushToken: String
     }
-    
+
     typealias ResponseType = Void
-    
+
     let method: HTTPMethod
     let urlable: Urlable = .path("/api/devices/registrations")
     let headers = ["Content-Type": "application/json"]
-    
-    init(pushToken: String) {
+
+    init(pushToken: String)
+    {
         let requestJSON = RegistrationRequestJSON(pushToken: pushToken)
         method = HTTPMethod.post(data: try! JSONEncoder().encode(requestJSON))
     }
-    
-    func parse(_ data: Data) throws -> Void {
-    }
 
+    func parse(_: Data) throws
+    {}
 }

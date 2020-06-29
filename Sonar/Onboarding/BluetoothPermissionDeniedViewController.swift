@@ -8,14 +8,17 @@
 
 import UIKit
 
-class BluetoothPermissionDeniedViewController: FixPermissionsViewController, Storyboarded {
+class BluetoothPermissionDeniedViewController: FixPermissionsViewController, Storyboarded
+{
     static let storyboardName = "Onboarding"
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
+    {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
-    
-    required init?(coder: NSCoder) {
+
+    required init?(coder: NSCoder)
+    {
         super.init(coder: coder)
     }
 }

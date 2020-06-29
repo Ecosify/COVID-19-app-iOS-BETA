@@ -8,11 +8,13 @@
 
 import UIKit
 
-class ContactEventExpiryHandler {
+class ContactEventExpiryHandler
+{
     private let contactEventRepository: ContactEventRepository
     private let notificationCenter: NotificationCenter
-    
-    init(notificationCenter: NotificationCenter, contactEventRepository: ContactEventRepository) {
+
+    init(notificationCenter: NotificationCenter, contactEventRepository: ContactEventRepository)
+    {
         self.contactEventRepository = contactEventRepository
         self.notificationCenter = notificationCenter
 
@@ -20,16 +22,19 @@ class ContactEventExpiryHandler {
         significantTimeDidChange()
     }
 
-    deinit {
+    deinit
+    {
         notificationCenter.removeObserver(self)
     }
-    
-    @objc private func significantTimeDidChange() {
+
+    @objc private func significantTimeDidChange()
+    {
         let ttl = convertDaysIntoSeconds(days: 28)
         contactEventRepository.removeExpiredContactEvents(ttl: ttl)
     }
-    
-    func convertDaysIntoSeconds(days: Double) -> Double {
+
+    func convertDaysIntoSeconds(days: Double) -> Double
+    {
         return days * 24 * 60 * 60
     }
 }

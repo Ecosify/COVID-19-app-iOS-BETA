@@ -8,13 +8,15 @@
 
 import UIKit
 
-struct RequestFactory {
-
-    static func registrationRequest(pushToken: String) -> RegistrationRequest {
+struct RequestFactory
+{
+    static func registrationRequest(pushToken: String) -> RegistrationRequest
+    {
         return RegistrationRequest(pushToken: pushToken)
     }
-    
-    static func confirmRegistrationRequest(activationCode: String, pushToken: String, postalCode: String) -> ConfirmRegistrationRequest {
+
+    static func confirmRegistrationRequest(activationCode: String, pushToken: String, postalCode: String) -> ConfirmRegistrationRequest
+    {
         let deviceModel = UIDevice.current.modelName
         let deviceOSVersion = UIDevice.current.systemVersion
 

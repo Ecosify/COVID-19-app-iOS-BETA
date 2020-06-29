@@ -6,13 +6,14 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
+import CommonCrypto
 import Foundation
 import Security
-import CommonCrypto
 
 import Logging
 
-protocol BroadcastRotationKeyStorage {
+protocol BroadcastRotationKeyStorage
+{
     func save(publicKey: SecKey) throws
     func save(broadcastId: Data, date: Date)
     func readBroadcastId() -> (Data, Date)?
@@ -20,35 +21,41 @@ protocol BroadcastRotationKeyStorage {
     func clear() throws
 }
 
-struct SecureBroadcastRotationKeyStorage: BroadcastRotationKeyStorage {
-
+struct SecureBroadcastRotationKeyStorage: BroadcastRotationKeyStorage
+{
     private let publicKeyTag = "uk.nhs.nhsx.sonar.public_key"
     private let broadcastIdKeyTag = "uk.nhs.nhsx.sonar.broadcast_id"
     private let broadcastIdDateKeyTag = "uk.nhs.nhsx.sonar.broadcast_id_date"
 
-    func save(publicKey: SecKey) throws {
+    func save(publicKey: SecKey) throws
+    {
         let status = saveToKeychain(publicKey)
 
-        guard status == errSecSuccess || status == errSecDuplicateItem else {
+        guard status == errSecSuccess || status == errSecDuplicateItem else
+        {
             logger.error("Failed to add BTLE rotation key to keychain: \(status)")
             throw KeychainErrors.couldNotSaveToKeychain(status)
         }
     }
-    
-    func save(broadcastId: Data, date: Date) {
+
+    func save(broadcastId: Data, date: Date)
+    {
         UserDefaults.standard.set(broadcastId, forKey: broadcastIdKeyTag)
         UserDefaults.standard.set(date, forKey: broadcastIdDateKeyTag)
     }
-    
-    func readBroadcastId() -> (Data, Date)? {
-        guard let data = UserDefaults.standard.data(forKey: broadcastIdKeyTag), let date = UserDefaults.standard.object(forKey: broadcastIdDateKeyTag) as? Date else {
+
+    func readBroadcastId() -> (Data, Date)?
+    {
+        guard let data = UserDefaults.standard.data(forKey: broadcastIdKeyTag), let date = UserDefaults.standard.object(forKey: broadcastIdDateKeyTag) as? Date else
+        {
             return nil
         }
-        
+
         return (data, date)
     }
-    
-    func read() -> SecKey? {
+
+    func read() -> SecKey?
+    {
         let query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: publicKeyTag,
@@ -58,7 +65,8 @@ struct SecureBroadcastRotationKeyStorage: BroadcastRotationKeyStorage {
         var result: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
 
-        switch status {
+        switch status
+        {
         case errSecSuccess:
             return (result as! SecKey)
         case errSecItemNotFound:
@@ -70,18 +78,20 @@ struct SecureBroadcastRotationKeyStorage: BroadcastRotationKeyStorage {
         }
     }
 
-    func clear() throws {
+    func clear() throws
+    {
         UserDefaults.standard.removeObject(forKey: broadcastIdKeyTag)
         UserDefaults.standard.removeObject(forKey: broadcastIdDateKeyTag)
-        
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassKey,
-            kSecAttrApplicationTag as String : publicKeyTag,
+            kSecAttrApplicationTag as String: publicKeyTag,
             kSecAttrKeyType as String: kSecAttrKeyTypeEC,
         ]
         let status = SecItemDelete(query as CFDictionary)
 
-        guard status == errSecSuccess || status == errSecItemNotFound else {
+        guard status == errSecSuccess || status == errSecItemNotFound else
+        {
             logger.error("Failed to clear saved BTLE rotation key from keychain : \(status)")
             throw KeychainErrors.unhandledKeychainError(status)
         }
@@ -89,7 +99,8 @@ struct SecureBroadcastRotationKeyStorage: BroadcastRotationKeyStorage {
 
     // MARK: - Private
 
-    private func saveToKeychain(_ publicKey: SecKey) -> OSStatus {
+    private func saveToKeychain(_ publicKey: SecKey) -> OSStatus
+    {
         let query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: publicKeyTag,
@@ -101,10 +112,10 @@ struct SecureBroadcastRotationKeyStorage: BroadcastRotationKeyStorage {
     }
 }
 
-fileprivate enum KeychainErrors: Error {
+private enum KeychainErrors: Error
+{
     case couldNotSaveToKeychain(_ status: OSStatus)
     case unhandledKeychainError(_ status: OSStatus)
 }
 
-
-fileprivate let logger = Logger(label: "BTLE")
+private let logger = Logger(label: "BTLE")

@@ -6,10 +6,11 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
-class SubmitSymptomsViewController: UIViewController, Storyboarded {
+class SubmitSymptomsViewController: UIViewController, Storyboarded
+{
     static let storyboardName = "SelfDiagnosis"
 
     // MARK: - Dependencies
@@ -28,7 +29,8 @@ class SubmitSymptomsViewController: UIViewController, Storyboarded {
         startDate: Date,
         statusViewController: StatusViewController?,
         localNotificationScheduler: Scheduler
-    ) {
+    )
+    {
         self.persisting = persisting
         self.contactEventsUploader = contactEventsUploader
         self.statusViewController = statusViewController
@@ -39,16 +41,17 @@ class SubmitSymptomsViewController: UIViewController, Storyboarded {
 
     // MARK: - UIKit
 
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var thankYouLabel: UILabel!
-    @IBOutlet weak var confirmLabel: UILabel!
-    @IBOutlet weak var submitButtonWrapper: UIView!
-    @IBOutlet weak var submitButton: PrimaryButton!
-    @IBOutlet weak var confirmSwitch: UISwitch!
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var heightConstraint: NSLayoutConstraint!
+    @IBOutlet var thankYouLabel: UILabel!
+    @IBOutlet var confirmLabel: UILabel!
+    @IBOutlet var submitButtonWrapper: UIView!
+    @IBOutlet var submitButton: PrimaryButton!
+    @IBOutlet var confirmSwitch: UISwitch!
     @IBOutlet var errorLabel: AccessibleErrorLabel!
-    
-    override func viewDidLoad() {
+
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         thankYouLabel.text = "SUBMIT_SYMPTOMS_THANK_YOU".localized
@@ -58,22 +61,27 @@ class SubmitSymptomsViewController: UIViewController, Storyboarded {
     }
 
     private var isSubmitting = false
-    @IBAction func submitTapped(_ sender: PrimaryButton) {
-        defer {
+    @IBAction func submitTapped(_: PrimaryButton)
+    {
+        defer
+        {
             isSubmitting = false
         }
 
         guard !isSubmitting, validateConfirmation() else { return }
         isSubmitting = true
 
-        do {
+        do
+        {
             navigationController?.dismiss(animated: true, completion: nil)
-            
+
             let hasCough = symptoms.contains(.cough)
             var selfDiagnosis = SelfDiagnosis(type: .initial, symptoms: symptoms, startDate: startDate, daysToLive: 7)
-                    
-            if symptoms.contains(.temperature) || (hasCough && !selfDiagnosis.hasExpired) {
-                if selfDiagnosis.hasExpired {
+
+            if symptoms.contains(.temperature) || (hasCough && !selfDiagnosis.hasExpired)
+            {
+                if selfDiagnosis.hasExpired
+                {
                     selfDiagnosis = SelfDiagnosis(type: .subsequent, symptoms: symptoms, startDate: Date(), daysToLive: 1)
                 }
 
@@ -83,23 +91,29 @@ class SubmitSymptomsViewController: UIViewController, Storyboarded {
                 try contactEventsUploader.upload()
 
                 localNotificationScheduler.scheduleDiagnosisNotification(expiryDate: selfDiagnosis.expiryDate)
-            } else {
-                if hasCough {
+            }
+            else
+            {
+                if hasCough
+                {
                     statusViewController?.updatePrompt()
                 }
                 persisting.selfDiagnosis = nil
             }
-            
-        } catch {
+        }
+        catch
+        {
             alert(with: Error())
         }
     }
 
-    struct Error: Swift.Error {
+    struct Error: Swift.Error
+    {
         var localizedDescription: String { "An unexpected error occurred" }
     }
 
-    private func alert(with error: Error) {
+    private func alert(with error: Error)
+    {
         let alert = UIAlertController(
             title: "Error uploading contact events",
             message: error.localizedDescription,
@@ -108,26 +122,32 @@ class SubmitSymptomsViewController: UIViewController, Storyboarded {
         alert.addAction(UIAlertAction(title: "Okay", style: .default))
         present(alert, animated: true)
     }
-    
-    private func validateConfirmation() -> Bool {
-        if confirmSwitch.isOn {
+
+    private func validateConfirmation() -> Bool
+    {
+        if confirmSwitch.isOn
+        {
             return true
-        } else {
+        }
+        else
+        {
             presentErrorToUser()
-            
+
             // Showing the error label will sometimes push the continue button off screen.
             // Scroll it into view. But first, go async so that scrollView.contentSize will
             // be recomputed before we read it.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5)
+            {
                 let targetRect = self.errorLabel.convert(self.errorLabel.bounds, to: self.scrollView)
                 self.scrollView.scrollRectToVisible(targetRect, animated: true)
             }
-            
+
             return false
         }
     }
 
-    private func presentErrorToUser() {
+    private func presentErrorToUser()
+    {
         errorLabel.isHidden = false
 
         confirmSwitch.layer.borderWidth = 3
@@ -136,4 +156,4 @@ class SubmitSymptomsViewController: UIViewController, Storyboarded {
     }
 }
 
-fileprivate let logger = Logger(label: "SelfDiagnosis")
+private let logger = Logger(label: "SelfDiagnosis")

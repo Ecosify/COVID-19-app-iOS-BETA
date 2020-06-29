@@ -8,21 +8,22 @@
 
 import UIKit
 
-class QuestionSymptomsViewController: UIViewController, Storyboarded {
+class QuestionSymptomsViewController: UIViewController, Storyboarded
+{
     static var storyboardName = "SelfDiagnosis"
-    
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var pageLabel: UILabel!
-    @IBOutlet weak var detailLabel: UILabel!
-    @IBOutlet weak var errorLabel: AccessibleErrorLabel!
-    @IBOutlet weak var yesButton: AnswerButton!
-    @IBOutlet weak var noButton: AnswerButton!
-    @IBOutlet weak var questionButton: PrimaryButton!
-    @IBOutlet weak var scrollView: UIScrollView!
-    
+
+    @IBOutlet var titleLabel: UILabel!
+    @IBOutlet var pageLabel: UILabel!
+    @IBOutlet var detailLabel: UILabel!
+    @IBOutlet var errorLabel: AccessibleErrorLabel!
+    @IBOutlet var yesButton: AnswerButton!
+    @IBOutlet var noButton: AnswerButton!
+    @IBOutlet var questionButton: PrimaryButton!
+    @IBOutlet var scrollView: UIScrollView!
+
     var buttonAction: ((Bool) -> Void)!
     var questionState: Bool?
-    
+
     var pageNumber: Int!
     var pageCount: Int!
     var questionTitle: String!
@@ -31,7 +32,7 @@ class QuestionSymptomsViewController: UIViewController, Storyboarded {
     var questionYes: String!
     var questionNo: String!
     var buttonText: String!
-    
+
     func inject(
         pageNumber: Int,
         pageCount: Int,
@@ -42,7 +43,8 @@ class QuestionSymptomsViewController: UIViewController, Storyboarded {
         questionNo: String,
         buttonText: String,
         buttonAction: @escaping (Bool) -> Void
-    ) {        
+    )
+    {
         self.pageNumber = pageNumber
         self.pageCount = pageCount
         self.questionTitle = questionTitle
@@ -53,8 +55,9 @@ class QuestionSymptomsViewController: UIViewController, Storyboarded {
         self.buttonText = buttonText
         self.buttonAction = buttonAction
     }
-    
-    override func viewDidLoad() {
+
+    override func viewDidLoad()
+    {
         pageLabel.text = "\(pageNumber!)/\(pageCount!)"
         pageLabel.accessibilityLabel = "Step \(pageNumber!) of \(pageCount!)"
         titleLabel.text = questionTitle
@@ -67,39 +70,51 @@ class QuestionSymptomsViewController: UIViewController, Storyboarded {
         yesButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedYes)))
         noButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedNo)))
     }
-    
-    @objc func longPressedYes(sender: UILongPressGestureRecognizer) {
-        if sender.state != UIGestureRecognizer.State.ended {
+
+    @objc func longPressedYes(sender: UILongPressGestureRecognizer)
+    {
+        if sender.state != UIGestureRecognizer.State.ended
+        {
             yesButton.layer.borderWidth = 2
             yesButton.layer.borderColor = UIColor(named: "NHS Highlight")!.withAlphaComponent(0.96).cgColor
-        } else {
+        }
+        else
+        {
             yesTapped(self)
         }
     }
-    
-    @objc func longPressedNo(sender: UILongPressGestureRecognizer) {
-        if sender.state != UIGestureRecognizer.State.ended {
+
+    @objc func longPressedNo(sender: UILongPressGestureRecognizer)
+    {
+        if sender.state != UIGestureRecognizer.State.ended
+        {
             noButton.layer.borderWidth = 2
             noButton.layer.borderColor = UIColor(named: "NHS Highlight")!.withAlphaComponent(0.96).cgColor
-        } else {
+        }
+        else
+        {
             noTapped(self)
         }
     }
-    
-    @IBAction func yesTapped(_ sender: Any) {
+
+    @IBAction func yesTapped(_: Any)
+    {
         yesButton.isSelected = true
         noButton.isSelected = false
         questionState = true
     }
-    
-    @IBAction func noTapped(_ sender: Any) {
+
+    @IBAction func noTapped(_: Any)
+    {
         yesButton.isSelected = false
         noButton.isSelected = true
         questionState = false
     }
-    
-    @IBAction func buttonTapped(_ sender: Any) {
-        guard let state = questionState else {
+
+    @IBAction func buttonTapped(_: Any)
+    {
+        guard let state = questionState else
+        {
             scroll(after: {
                 self.errorLabel.isHidden = false
             }, to: errorLabel)
@@ -107,5 +122,4 @@ class QuestionSymptomsViewController: UIViewController, Storyboarded {
         }
         buttonAction(state)
     }
-    
 }

@@ -8,22 +8,27 @@
 
 import Foundation
 
-protocol LocalNotificationScheduling {
+protocol LocalNotificationScheduling
+{
     func scheduleLocalNotification(title: String?, body: String, interval: TimeInterval, identifier: String, repeats: Bool)
 }
 
-struct HumbleLocalNotificationScheduler: LocalNotificationScheduling {
+struct HumbleLocalNotificationScheduler: LocalNotificationScheduling
+{
     private let userNotificationCenter: UserNotificationCenter
-    
-    init(userNotificationCenter: UserNotificationCenter) {
+
+    init(userNotificationCenter: UserNotificationCenter)
+    {
         self.userNotificationCenter = userNotificationCenter
     }
 
-    func scheduleLocalNotification(title: String?, body: String, interval: TimeInterval, identifier: String, repeats: Bool) {
+    func scheduleLocalNotification(title: String?, body: String, interval: TimeInterval, identifier: String, repeats: Bool)
+    {
         let content = UNMutableNotificationContent()
         content.body = body
-        
-        if let title = title {
+
+        if let title = title
+        {
             content.title = title
         }
 

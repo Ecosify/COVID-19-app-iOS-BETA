@@ -8,13 +8,16 @@
 
 import Foundation
 
-enum AppEvent: Equatable {
-    enum RegistrationFailureReason: Equatable {
+enum AppEvent: Equatable
+{
+    enum RegistrationFailureReason: Equatable
+    {
         case waitingForFCMTokenTimedOut
         case registrationCallFailed(statusCode: Int?)
         case waitingForActivationNotificationTimedOut
         case activationCallFailed(statusCode: Int?)
     }
+
     case partialPostcodeProvided
     case onboardingCompleted
     case registrationSucceeded

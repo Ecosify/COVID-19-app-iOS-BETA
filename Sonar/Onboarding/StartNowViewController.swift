@@ -8,31 +8,36 @@
 
 import UIKit
 
-class StartNowViewController: UIViewController, Storyboarded {
+class StartNowViewController: UIViewController, Storyboarded
+{
     static let storyboardName = "Onboarding"
 
-    private var persistence: Persisting! = nil
-    private var notificationCenter: NotificationCenter! = nil
-    private var continueHandler: (() -> Void)! = nil
-    
-    @IBOutlet weak var howItWorks: LinkButton!
+    private var persistence: Persisting!
+    private var notificationCenter: NotificationCenter!
+    private var continueHandler: (() -> Void)!
 
-    override func viewDidLoad() {
+    @IBOutlet var howItWorks: LinkButton!
+
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         howItWorks.inject(title: "Learn more about how it works".localized, external: false, style: .body)
     }
 
-    func inject(persistence: Persisting, notificationCenter: NotificationCenter, continueHandler: @escaping () -> Void) {
+    func inject(persistence: Persisting, notificationCenter: NotificationCenter, continueHandler: @escaping () -> Void)
+    {
         self.persistence = persistence
         self.notificationCenter = notificationCenter
         self.continueHandler = continueHandler
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
         super.prepare(for: segue, sender: sender)
-        
-        if let destination = segue.destination as? PostcodeViewController {
+
+        if let destination = segue.destination as? PostcodeViewController
+        {
             destination.inject(persistence: persistence,
                                notificationCenter: notificationCenter,
                                continueHandler: continueHandler)

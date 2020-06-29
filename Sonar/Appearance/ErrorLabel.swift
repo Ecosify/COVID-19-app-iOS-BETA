@@ -8,5 +8,5 @@
 
 import UIKit
 
-class ErrorLabel: UILabel {
-}
+class ErrorLabel: UILabel
+{}

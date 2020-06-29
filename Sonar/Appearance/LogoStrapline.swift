@@ -8,50 +8,58 @@
 import UIKit
 
 @IBDesignable
-class LogoStrapline: UIView {
-    
-    @IBOutlet weak var logoImageView: UIImageView!
+class LogoStrapline: UIView
+{
+    @IBOutlet var logoImageView: UIImageView!
     @IBOutlet private var titleLabel: UILabel!
-    @IBOutlet weak var infoButton: UIButton!
+    @IBOutlet var infoButton: UIButton!
 
     var accessibilityElement: UIAccessibilityElement!
 
-    static var nibName: String {
+    static var nibName: String
+    {
         String(describing: self)
     }
-    
-    required init?(coder aDecoder: NSCoder) {
+
+    required init?(coder aDecoder: NSCoder)
+    {
         super.init(coder: aDecoder)
         commonInit()
     }
-    
-    override init(frame: CGRect) {
+
+    override init(frame: CGRect)
+    {
         super.init(frame: frame)
         commonInit()
     }
-    
-    override func prepareForInterfaceBuilder() {
+
+    override func prepareForInterfaceBuilder()
+    {
         super.prepareForInterfaceBuilder()
         commonInit()
     }
 
-    override func layoutSubviews() {
+    override func layoutSubviews()
+    {
         accessibilityElement.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(
             logoImageView.frame.union(titleLabel.frame),
             in: self
         )
     }
 
-    @IBAction func infoTapped(_ sender: UIButton) {
+    @IBAction func infoTapped(_: UIButton)
+    {
         let url = URL(string: "https://covid19.nhs.uk/?utm_source=nhscovid19ios&utm_medium=mobileapp&utm_campaign=nhscovid19app&utm_content=statuspage")!
         UIApplication.shared.open(url)
     }
 
-    func commonInit() {
-        guard let view = loadViewFromNib() else {
+    func commonInit()
+    {
+        guard let view = loadViewFromNib() else
+        {
             return
         }
-        
+
         view.backgroundColor = UIColor(named: "NHS Blue")
         titleLabel.text = "COVID-19"
 
@@ -67,10 +75,10 @@ class LogoStrapline: UIView {
         accessibilityElement.accessibilityLabel = "NHS COVID-19"
         accessibilityElements = [accessibilityElement!, infoButton!]
     }
-    
-    func loadViewFromNib() -> UIView? {
+
+    func loadViewFromNib() -> UIView?
+    {
         let nib = UINib(nibName: LogoStrapline.nibName, bundle: Bundle(for: LogoStrapline.self))
         return nib.instantiate(withOwner: self, options: nil).first as? UIView
     }
-    
 }

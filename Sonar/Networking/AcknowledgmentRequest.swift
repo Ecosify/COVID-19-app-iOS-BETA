@@ -8,19 +8,19 @@
 
 import Foundation
 
-class AcknowledgmentRequest: Request {
-
+class AcknowledgmentRequest: Request
+{
     typealias ResponseType = Void
 
     let method: HTTPMethod = .put(data: nil)
     let urlable: Urlable
     let headers: [String: String] = [:]
 
-    init(url: URL) {
+    init(url: URL)
+    {
         urlable = .url(url)
     }
 
-    func parse(_ data: Data) throws -> Void {
-    }
-
+    func parse(_: Data) throws
+    {}
 }

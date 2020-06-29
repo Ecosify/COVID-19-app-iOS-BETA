@@ -6,11 +6,11 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
 import CoreBluetooth
+import UIKit
 
-class BluetoothStateUserNotifier {
-    
+class BluetoothStateUserNotifier
+{
     let appStateReader: ApplicationStateReading
     let scheduler: LocalNotificationScheduling
     let uiQueue: TestableQueue
@@ -20,15 +20,18 @@ class BluetoothStateUserNotifier {
         bluetoothStateObserver: BluetoothStateObserving,
         scheduler: LocalNotificationScheduling,
         uiQueue: TestableQueue = DispatchQueue.main
-    ) {
+    )
+    {
         self.appStateReader = appStateReader
         self.scheduler = scheduler
         self.uiQueue = uiQueue
-        
-        bluetoothStateObserver.observe { state in
+
+        bluetoothStateObserver.observe
+        { state in
             guard state == .poweredOff else { return .keepObserving }
 
-            uiQueue.async {
+            uiQueue.async
+            {
                 guard self.appStateReader.applicationState == .background else { return }
 
                 self.scheduler.scheduleLocalNotification(
@@ -39,7 +42,7 @@ class BluetoothStateUserNotifier {
                     repeats: false
                 )
             }
-            
+
             return .keepObserving
         }
     }
@@ -47,8 +50,9 @@ class BluetoothStateUserNotifier {
 
 // MARK: - Testable
 
-protocol ApplicationStateReading {
+protocol ApplicationStateReading
+{
     var applicationState: UIApplication.State { get }
 }
 
-extension UIApplication: ApplicationStateReading { }
+extension UIApplication: ApplicationStateReading {}

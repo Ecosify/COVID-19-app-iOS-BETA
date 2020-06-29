@@ -8,16 +8,20 @@
 
 import UIKit
 
-class AccessibleErrorLabel : UILabel {
-    override var isHidden: Bool {
-        didSet {
+class AccessibleErrorLabel: UILabel
+{
+    override var isHidden: Bool
+    {
+        didSet
+        {
             guard isHidden == false else { return }
 
             postVoiceOverNotification()
         }
     }
 
-    private func postVoiceOverNotification() {
+    private func postVoiceOverNotification()
+    {
         UIAccessibility.post(notification: .screenChanged,
                              argument: self)
     }

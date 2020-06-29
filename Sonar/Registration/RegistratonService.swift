@@ -8,18 +8,19 @@
 
 import Foundation
 import Logging
- 
-protocol RegistrationService {
+
+protocol RegistrationService
+{
     func register() -> Void
 }
 
 let RegistrationCompletedNotification = Notification.Name("RegistrationCompletedNotification")
 let RegistrationFailedNotification = Notification.Name("RegistrationFailedNotification")
 
-fileprivate let registrationTimeLimitSecs = 20.0
+private let registrationTimeLimitSecs = 20.0
 
-
-class ConcreteRegistrationService: RegistrationService {
+class ConcreteRegistrationService: RegistrationService
+{
     private let session: Session
     private let persistence: Persisting
     private let reminderScheduler: RegistrationReminderScheduler
@@ -29,15 +30,15 @@ class ConcreteRegistrationService: RegistrationService {
     private let timeoutQueue: TestableQueue
     private var remoteNotificationCompletionHandler: RemoteNotificationCompletionHandler?
     private var isRegistering = false
-    
+
     init(session: Session,
          persistence: Persisting,
          reminderScheduler: RegistrationReminderScheduler,
          remoteNotificationDispatcher: RemoteNotificationDispatching,
          notificationCenter: NotificationCenter,
          monitor: AppMonitoring,
-         timeoutQueue: TestableQueue
-    ) {
+         timeoutQueue: TestableQueue)
+    {
         self.session = session
 
         self.persistence = persistence
@@ -46,51 +47,61 @@ class ConcreteRegistrationService: RegistrationService {
         self.remoteNotificationDispatcher = remoteNotificationDispatcher
         self.monitor = monitor
         self.timeoutQueue = timeoutQueue
-        
+
         // when our backend sends us the activation code in a push notification
         // we will want to make a second request to complete the registration process
-        remoteNotificationDispatcher.registerHandler(forType: .registrationActivationCode) { userInfo, completion in
-            guard persistence.registration == nil else {
+        remoteNotificationDispatcher.registerHandler(forType: .registrationActivationCode)
+        { userInfo, completion in
+            guard persistence.registration == nil else
+            {
                 logger.warning("Ignoring a registration activation code notification because we are already registered.")
                 return
             }
-            
+
             self.remoteNotificationCompletionHandler = completion
             self.confirmRegistration(activationCode: userInfo["activationCode"] as! String)
         }
     }
-    
-    deinit {
+
+    deinit
+    {
         remoteNotificationDispatcher.removeHandler(forType: .registrationActivationCode)
         notificationCenter.removeObserver(self)
     }
-    
-    func register() -> Void {
-        guard !isRegistering else {
+
+    func register()
+    {
+        guard !isRegistering else
+        {
             logger.warning("Tried to register when already registering")
             return
         }
-        
+
         isRegistering = true
         reminderScheduler.schedule()
-        
-        if let pushToken = remoteNotificationDispatcher.pushToken {
+
+        if let pushToken = remoteNotificationDispatcher.pushToken
+        {
             // if somehow we have already received our fcm push token, perform the first registration request
             requestRegistration(pushToken)
-        } else {
+        }
+        else
+        {
             // otherwise when it later appears, we can perform the first of two registration requests
-            notificationCenter.addObserver(forName: PushTokenReceivedNotification, object: nil, queue: nil) { notification in
+            notificationCenter.addObserver(forName: PushTokenReceivedNotification, object: nil, queue: nil)
+            { notification in
                 guard let pushToken = notification.object as? String else { return }
 
                 self.notificationCenter.removeObserver(self, name: PushTokenReceivedNotification, object: nil)
                 self.requestRegistration(pushToken)
             }
         }
-        
-        self.timeoutQueue.asyncAfter(deadline: .now() + registrationTimeLimitSecs) { [weak self] in
+
+        timeoutQueue.asyncAfter(deadline: .now() + registrationTimeLimitSecs)
+        { [weak self] in
             guard let self = self else { return }
             guard self.persistence.registration == nil else { return }
-            
+
             logger.error("Registration did not complete within \(registrationTimeLimitSecs) seconds")
             let hasPushToken = self.remoteNotificationDispatcher.pushToken != nil
             self.fail(
@@ -99,30 +110,36 @@ class ConcreteRegistrationService: RegistrationService {
             )
         }
     }
-    
-    private func requestRegistration(_ pushToken: String) {
+
+    private func requestRegistration(_ pushToken: String)
+    {
         let request = RequestFactory.registrationRequest(pushToken: pushToken)
 
-        session.execute(request, queue: .main) { result in
-            switch result {
-            case .success(_):
+        session.execute(request, queue: .main)
+        { result in
+            switch result
+            {
+            case .success:
                 logger.debug("First registration request succeeded")
                 // If everything worked, we'll receive a notification with the access token
                 // See confirmRegistration().
 
-            case .failure(let error):
+            case let .failure(error):
                 logger.error("Error making first registration request: \(error.localizedDescription)")
                 self.fail(withError: error, reason: .registrationCallFailed(statusCode: error.statusCode))
             }
         }
     }
-    
-    private func confirmRegistration(activationCode: String) {
-        guard let pushToken = remoteNotificationDispatcher.pushToken else {
+
+    private func confirmRegistration(activationCode: String)
+    {
+        guard let pushToken = remoteNotificationDispatcher.pushToken else
+        {
             logger.critical("Tried to register without push token.")
             return
         }
-        guard let partialPostalCode = persistence.partialPostcode else {
+        guard let partialPostalCode = persistence.partialPostcode else
+        {
             logger.critical("Tried to register without partial postalCode")
             return
         }
@@ -130,26 +147,32 @@ class ConcreteRegistrationService: RegistrationService {
         let request = RequestFactory.confirmRegistrationRequest(activationCode: activationCode,
                                                                 pushToken: pushToken,
                                                                 postalCode: partialPostalCode)
-        
-        session.execute(request, queue: .main) { result in
-            switch result {
-            case .success(let response):
+
+        session.execute(request, queue: .main)
+        { result in
+            switch result
+            {
+            case let .success(response):
                 logger.debug("Second registration request succeeded")
-                
-                guard self.persistence.registration == nil else {
+
+                guard self.persistence.registration == nil else
+                {
                     logger.info("Ignoring registration response because we are already registered")
                     return
                 }
-                
+
                 var broadcastRotationKey: SecKey!
-                
-                do {
+
+                do
+                {
                     broadcastRotationKey = try BroadcastRotationKeyConverter().fromData(response.serverPublicKey)
-                } catch {
+                }
+                catch
+                {
                     logger.error("Invalid server public key in registration confirmation response: \(error.localizedDescription)")
                     return
                 }
-                
+
                 let registration = Registration(
                     id: response.id,
                     secretKey: response.secretKey,
@@ -158,48 +181,53 @@ class ConcreteRegistrationService: RegistrationService {
                 self.persistence.registration = registration
 
                 self.succeed(registration: registration)
-            case .failure(let error):
+            case let .failure(error):
                 logger.error("Error making second registration request: \(error)")
                 self.fail(withError: error, reason: .activationCallFailed(statusCode: error.statusCode))
             }
         }
     }
-    
-    private func succeed(registration: Registration) {
+
+    private func succeed(registration _: Registration)
+    {
         isRegistering = false
-        self.remoteNotificationCompletionHandler?(.newData)
+        remoteNotificationCompletionHandler?(.newData)
         notificationCenter.post(name: RegistrationCompletedNotification, object: nil)
         reminderScheduler.cancel()
     }
-    
-    private func fail(withError error: Error, reason: AppEvent.RegistrationFailureReason) {
+
+    private func fail(withError error: Error, reason: AppEvent.RegistrationFailureReason)
+    {
         isRegistering = false
         logger.error("Registration failed: \(error)")
-        self.remoteNotificationCompletionHandler?(.failed)
+        remoteNotificationCompletionHandler?(.failed)
         notificationCenter.post(name: RegistrationFailedNotification, object: nil)
         monitor.report(.registrationFailed(reason: reason))
     }
 }
 
-fileprivate class RegistrationTimeoutError: Error {
+private class RegistrationTimeoutError: Error
+{
     let errorDescription = "Registration did not complete within \(registrationTimeLimitSecs) seconds."
 }
 
 // MARK: - Logging
+
 private let logger = Logger(label: "Registration")
 
-private extension Error {
-    
+private extension Error
+{
     // TODO: This is relying on untested internals of `URLSession.execute`.
     // Make this less breakable
-    var statusCode: Int? {
+    var statusCode: Int?
+    {
         let nsError = self as NSError
-        switch nsError.domain {
+        switch nsError.domain
+        {
         case "RequestErrorDomain":
             return nsError.code
         default:
             return nil
         }
     }
-    
 }

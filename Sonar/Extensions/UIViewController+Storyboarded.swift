@@ -8,13 +8,16 @@
 
 import UIKit
 
-protocol Storyboarded: class {
+protocol Storyboarded: class
+{
     static var storyboardName: String { get }
     static func instantiate() -> Self
 }
 
-extension Storyboarded where Self: UIViewController {
-    static func instantiate() -> Self {
+extension Storyboarded where Self: UIViewController
+{
+    static func instantiate() -> Self
+    {
         let fullName = NSStringFromClass(self)
         let className = fullName.components(separatedBy: ".")[1]
         let storyboard = UIStoryboard(name: storyboardName, bundle: Bundle(for: Self.self))
@@ -22,12 +25,12 @@ extension Storyboarded where Self: UIViewController {
     }
 }
 
-extension Storyboarded {
-    
-    static func instantiate(prepare: (Self) -> Void) -> Self {
-        let instance = self.instantiate()
+extension Storyboarded
+{
+    static func instantiate(prepare: (Self) -> Void) -> Self
+    {
+        let instance = instantiate()
         prepare(instance)
         return instance
     }
-    
 }

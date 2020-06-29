@@ -8,26 +8,29 @@
 
 import UIKit
 
-class UpdateDiagnosisCoordinator: Coordinator {
+class UpdateDiagnosisCoordinator: Coordinator
+{
     let navigationController: UINavigationController
     let persisting: Persisting
     let statusViewController: StatusViewController
     let startDate: Date
-    
+
     init(
         navigationController: UINavigationController,
         persisting: Persisting,
         statusViewController: StatusViewController
-    ) {
+    )
+    {
         self.navigationController = navigationController
         self.persisting = persisting
         self.statusViewController = statusViewController
         startDate = persisting.selfDiagnosis?.startDate ?? Date()
     }
-    
+
     var symptoms = Set<Symptom>()
-    
-    func start() {
+
+    func start()
+    {
         let vc = QuestionSymptomsViewController.instantiate()
 
         let isCheckin = persisting.selfDiagnosis.map { $0.symptoms.contains(.temperature) } ?? false
@@ -41,8 +44,10 @@ class UpdateDiagnosisCoordinator: Coordinator {
             questionYes: "TEMPERATURE_YES".localized,
             questionNo: "TEMPERATURE_NO".localized,
             buttonText: "Continue"
-        ) { hasHighTemperature in
-            if hasHighTemperature {
+        )
+        { hasHighTemperature in
+            if hasHighTemperature
+            {
                 self.symptoms.insert(.temperature)
             }
             self.openCoughView()
@@ -50,8 +55,9 @@ class UpdateDiagnosisCoordinator: Coordinator {
 
         navigationController.pushViewController(vc, animated: true)
     }
-    
-    func openCoughView() {
+
+    func openCoughView()
+    {
         let vc = QuestionSymptomsViewController.instantiate()
 
         let isCheckin = persisting.selfDiagnosis.map { $0.symptoms.contains(.cough) } ?? false
@@ -65,20 +71,26 @@ class UpdateDiagnosisCoordinator: Coordinator {
             questionYes: "COUGH_YES".localized,
             questionNo: "COUGH_NO".localized,
             buttonText: "Submit"
-        ) { hasNewCough in
-            if hasNewCough {
+        )
+        { hasNewCough in
+            if hasNewCough
+            {
                 self.symptoms.insert(.cough)
             }
-            
+
             self.navigationController.dismiss(animated: true, completion: nil)
-            
-            if self.symptoms.contains(.temperature) {
+
+            if self.symptoms.contains(.temperature)
+            {
                 var diagnosis = SelfDiagnosis(type: .subsequent, symptoms: self.symptoms, startDate: Date())
                 diagnosis.expiresIn(days: 1)
                 self.persisting.selfDiagnosis = diagnosis
-            } else {
+            }
+            else
+            {
                 self.persisting.selfDiagnosis = nil
-                if self.symptoms.contains(.cough) {
+                if self.symptoms.contains(.cough)
+                {
                     self.statusViewController.updatePrompt()
                 }
             }

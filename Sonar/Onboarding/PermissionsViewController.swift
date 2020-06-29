@@ -6,23 +6,24 @@
 //  Copyright © 2020 NHSX. All rights reserved.
 //
 
-import UIKit
-import Logging
 import CoreBluetooth
+import Logging
+import UIKit
 
-class PermissionsViewController: UIViewController, Storyboarded {
+class PermissionsViewController: UIViewController, Storyboarded
+{
     static let storyboardName = "Onboarding"
 
-    private var authManager: AuthorizationManaging! = nil
-    private var remoteNotificationManager: RemoteNotificationManager! = nil
-    private var uiQueue: TestableQueue! = nil
-    private var continueHandler: (() -> Void)! = nil
-    private var bluetoothNursery: BluetoothNursery! = nil
-    private var persistence: Persisting! = nil
-    
+    private var authManager: AuthorizationManaging!
+    private var remoteNotificationManager: RemoteNotificationManager!
+    private var uiQueue: TestableQueue!
+    private var continueHandler: (() -> Void)!
+    private var bluetoothNursery: BluetoothNursery!
+    private var persistence: Persisting!
+
     @IBOutlet var continueButton: PrimaryButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    
+
     func inject(
         authManager: AuthorizationManaging,
         remoteNotificationManager: RemoteNotificationManager,
@@ -30,7 +31,8 @@ class PermissionsViewController: UIViewController, Storyboarded {
         persistence: Persisting,
         uiQueue: TestableQueue,
         continueHandler: @escaping () -> Void
-    ) {
+    )
+    {
         self.authManager = authManager
         self.remoteNotificationManager = remoteNotificationManager
         self.bluetoothNursery = bluetoothNursery
@@ -38,14 +40,17 @@ class PermissionsViewController: UIViewController, Storyboarded {
         self.uiQueue = uiQueue
         self.continueHandler = continueHandler
     }
-        
-    override func viewWillAppear(_ animated: Bool) {
+
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
-        
+
         activityIndicator.isHidden = true
-        
-        authManager.waitForDeterminedBluetoothAuthorizationStatus { [weak self] _ in
-            guard let self = self else {
+
+        authManager.waitForDeterminedBluetoothAuthorizationStatus
+        { [weak self] _ in
+            guard let self = self else
+            {
                 return
             }
 
@@ -64,19 +69,20 @@ class PermissionsViewController: UIViewController, Storyboarded {
         }
     }
 
-    @IBAction func didTapContinue() {
+    @IBAction func didTapContinue()
+    {
         continueButton.isHidden = true
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
 
         persistence.bluetoothPermissionRequested = true
-        
+
         #if targetEnvironment(simulator)
 
             // There's no Bluetooth on the Simulator, so skip
             // directly to asking for notification permissions.
             maybeRequestNotificationPermissions()
-        
+
         #else
             requestBluetoothPermissions()
         #endif
@@ -84,13 +90,16 @@ class PermissionsViewController: UIViewController, Storyboarded {
 
     // MARK: - Private
 
-    private func requestBluetoothPermissions() {
+    private func requestBluetoothPermissions()
+    {
         // observe, but don't ask for permissions yet
         // this will not trigger the prompt
-        bluetoothNursery.stateObserver.observe { [weak self] _ in
+        bluetoothNursery.stateObserver.observe
+        { [weak self] _ in
             guard let self = self else { return .stopObserving }
 
-            switch self.authManager.bluetooth {
+            switch self.authManager.bluetooth
+            {
             case .notDetermined:
                 return .keepObserving
             case .denied:
@@ -106,27 +115,34 @@ class PermissionsViewController: UIViewController, Storyboarded {
         bluetoothNursery.startBluetooth(registration: nil)
     }
 
-    private func maybeRequestNotificationPermissions() {
-        authManager.notifications { [weak self] status in
+    private func maybeRequestNotificationPermissions()
+    {
+        authManager.notifications
+        { [weak self] status in
             guard let self = self else { return }
 
             // If we've already asked for notification permissions, bail
             // out to let the OnboardingViewController figure out how to
             // deal with it.
-            guard status == .notDetermined else {
-                self.uiQueue.async {
+            guard status == .notDetermined else
+            {
+                self.uiQueue.async
+                {
                     self.continueHandler()
                 }
                 return
             }
 
-            self.remoteNotificationManager.requestAuthorization { result in
-                switch result {
+            self.remoteNotificationManager.requestAuthorization
+            { result in
+                switch result
+                {
                 case .success:
-                    self.uiQueue.async {
+                    self.uiQueue.async
+                    {
                         self.continueHandler()
                     }
-                case .failure(let error):
+                case let .failure(error):
                     // We have no idea what would cause an error here.
                     logger.critical("Error requesting notification permissions: \(error)")
                     fatalError()
@@ -137,4 +153,5 @@ class PermissionsViewController: UIViewController, Storyboarded {
 }
 
 // MARK: - Logger
+
 private let logger = Logger(label: "ViewController")

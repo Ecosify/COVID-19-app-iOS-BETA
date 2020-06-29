@@ -10,7 +10,8 @@ import UIKit
 
 import Logging
 
-class SymptomsSummaryViewController: UIViewController, Storyboarded {
+class SymptomsSummaryViewController: UIViewController, Storyboarded
+{
     static let storyboardName = "SelfDiagnosis"
 
     private var persisting: Persisting!
@@ -26,40 +27,45 @@ class SymptomsSummaryViewController: UIViewController, Storyboarded {
         hasNewCough: Bool,
         statusViewController: StatusViewController,
         localNotificationScheduler: Scheduler
-    ) {
+    )
+    {
         self.persisting = persisting
         self.contactEventsUploader = contactEventsUploader
         self.statusViewController = statusViewController
         self.localNotificationScheduler = localNotificationScheduler
         symptoms = Set()
-        if hasHighTemperature {
+        if hasHighTemperature
+        {
             symptoms.insert(.temperature)
         }
-        if hasNewCough {
+        if hasNewCough
+        {
             symptoms.insert(.cough)
         }
     }
 
     // MARK: - UIKit
 
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var haveSymptomsView: UIStackView!
-    @IBOutlet weak var checkAnswersLabel: UILabel!
-    @IBOutlet weak var temperatureCheckLabel: UILabel!
-    @IBOutlet weak var coughCheckLabel: UILabel!
-    @IBOutlet weak var thankYouLabel: UILabel!
-    @IBOutlet weak var noSymptomsView: UIStackView!
-    @IBOutlet weak var noSymptomsLabel: UILabel!
-    @IBOutlet weak var noSymptomsInfoLabel: UILabel!
-    @IBOutlet weak var noSymptomsInfoButton: UIButton!
-    @IBOutlet weak var button: PrimaryButton!
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var heightConstraint: NSLayoutConstraint!
+    @IBOutlet var haveSymptomsView: UIStackView!
+    @IBOutlet var checkAnswersLabel: UILabel!
+    @IBOutlet var temperatureCheckLabel: UILabel!
+    @IBOutlet var coughCheckLabel: UILabel!
+    @IBOutlet var thankYouLabel: UILabel!
+    @IBOutlet var noSymptomsView: UIStackView!
+    @IBOutlet var noSymptomsLabel: UILabel!
+    @IBOutlet var noSymptomsInfoLabel: UILabel!
+    @IBOutlet var noSymptomsInfoButton: UIButton!
+    @IBOutlet var button: PrimaryButton!
 
     var startDateViewController: StartDateViewController!
     private var startDate: Date?
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        switch segue.destination {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?)
+    {
+        switch segue.destination
+        {
         case let vc as StartDateViewController:
             startDateViewController = vc
             vc.inject(symptoms: symptoms, delegate: self)
@@ -79,7 +85,8 @@ class SymptomsSummaryViewController: UIViewController, Storyboarded {
         }
     }
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         haveSymptomsView.isHidden = symptoms.isEmpty
@@ -97,27 +104,31 @@ class SymptomsSummaryViewController: UIViewController, Storyboarded {
         button.setTitle(buttonTitle.localized, for: .normal)
     }
 
-    @IBAction func noSymptomsInfoTapped(_ sender: ButtonWithDynamicType) {
+    @IBAction func noSymptomsInfoTapped(_: ButtonWithDynamicType)
+    {
         UIApplication.shared.open(URL(string: "https://111.nhs.uk/covid-19/")!)
     }
 
-    @IBAction func buttonTapped(_ sender: PrimaryButton) {
-        if symptoms.isEmpty {
+    @IBAction func buttonTapped(_: PrimaryButton)
+    {
+        if symptoms.isEmpty
+        {
             performSegue(withIdentifier: "unwindFromSelfDiagnosis", sender: self)
             return
         }
 
-        guard startDate != nil else {
+        guard startDate != nil else
+        {
             // ideally we'd only hide / show one of these, not both
             // but the error label triggers a UIAccessibility notification for voice over
             // and the error view is used to provide a margin between elements
             // because the error label is presented inside of a stack view
-            // TODO : remove the erroview.isHidden here if you refactor away from nested stack views
+            // TODO: remove the erroview.isHidden here if you refactor away from nested stack views
             scroll(after: {
                 self.startDateViewController.errorView.isHidden = false
                 self.startDateViewController.errorLabel.isHidden = false
             }, to: startDateViewController.errorLabel)
-            
+
             return
         }
 
@@ -127,11 +138,12 @@ class SymptomsSummaryViewController: UIViewController, Storyboarded {
 
 // MARK: - StartDateViewControllerDelegate
 
-extension SymptomsSummaryViewController: StartDateViewControllerDelegate {
-    func startDateViewController(_ vc: StartDateViewController, didSelectDate date: Date) {
+extension SymptomsSummaryViewController: StartDateViewControllerDelegate
+{
+    func startDateViewController(_: StartDateViewController, didSelectDate date: Date)
+    {
         startDate = date
     }
-    
 }
 
-fileprivate let logger = Logger(label: "SelfDiagnosis")
+private let logger = Logger(label: "SelfDiagnosis")

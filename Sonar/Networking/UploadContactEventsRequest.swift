@@ -9,9 +9,10 @@
 import Foundation
 import Logging
 
-class UploadContactEventsRequest: SecureRequest, Request {
-
-    struct UploadableContactEvent: Codable {
+class UploadContactEventsRequest: SecureRequest, Request
+{
+    struct UploadableContactEvent: Codable
+    {
         let encryptedRemoteContactId: Data
         let rssiValues: [Int8]
         let rssiIntervals: [Int32]
@@ -23,19 +24,21 @@ class UploadContactEventsRequest: SecureRequest, Request {
         let transmissionTime: Int32
         let countryCode: Int16
     }
-    
-    struct Wrapper: Codable {
+
+    struct Wrapper: Codable
+    {
         let symptomsTimestamp: Date
         let contactEvents: [UploadableContactEvent]
     }
 
     typealias ResponseType = Void
-    
+
     let method: HTTPMethod
-    
+
     let urlable: Urlable
 
-    init(registration: Registration, symptomsTimestamp: Date, contactEvents: [ContactEvent]) {
+    init(registration: Registration, symptomsTimestamp: Date, contactEvents: [ContactEvent])
+    {
         let key = registration.secretKey
         let sonarId = registration.id
         urlable = .path("/api/residents/\(sonarId.uuidString)")
@@ -43,8 +46,10 @@ class UploadContactEventsRequest: SecureRequest, Request {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
 
-        let uploadableEvents = contactEvents.compactMap { (event: ContactEvent) -> UploadableContactEvent? in
-            guard let payload = event.broadcastPayload else {
+        let uploadableEvents = contactEvents.compactMap
+        { (event: ContactEvent) -> UploadableContactEvent? in
+            guard let payload = event.broadcastPayload else
+            {
                 return nil
             }
             return UploadableContactEvent(
@@ -57,23 +62,24 @@ class UploadContactEventsRequest: SecureRequest, Request {
                 txPowerAdvertised: event.txPower,
                 hmacSignature: payload.hmac,
                 transmissionTime: payload.transmissionTime,
-                countryCode: payload.countryCode)
+                countryCode: payload.countryCode
+            )
         }
 
         let requestBody = Wrapper(symptomsTimestamp: symptomsTimestamp, contactEvents: uploadableEvents)
         let bodyAsData = try! encoder.encode(requestBody)
-        
+
         logger.info("uploading contact events:\n \(String(data: bodyAsData, encoding: .utf8)!)")
         method = .patch(data: bodyAsData)
 
         super.init(key, bodyAsData, [
             "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         ])
     }
-    
-    func parse(_ data: Data) throws -> Void {
-    }
- 
+
+    func parse(_: Data) throws
+    {}
+
     fileprivate let logger = Logger(label: "BTLE")
 }

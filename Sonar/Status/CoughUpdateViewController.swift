@@ -8,15 +8,17 @@
 
 import UIKit
 
-class CoughUpdateViewController: UIViewController, Storyboarded {
+class CoughUpdateViewController: UIViewController, Storyboarded
+{
     static var storyboardName = "Status"
-    
-    @IBAction func close(_ sender: Any) {
+
+    @IBAction func close(_: Any)
+    {
         dismiss(animated: true, completion: nil)
     }
-    
-    
-    override func accessibilityPerformEscape() -> Bool {
+
+    override func accessibilityPerformEscape() -> Bool
+    {
         close(self)
         return true
     }

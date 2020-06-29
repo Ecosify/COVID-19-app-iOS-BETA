@@ -10,23 +10,28 @@ import UIKit
 
 import Logging
 
-protocol StartDateViewControllerDelegate: class {
+protocol StartDateViewControllerDelegate: class
+{
     func startDateViewController(_ vc: StartDateViewController, didSelectDate date: Date)
 }
 
-class StartDateViewController: UIViewController {
-
+class StartDateViewController: UIViewController
+{
     private var symptoms: Set<Symptom>!
     weak var delegate: StartDateViewControllerDelegate?
 
-    func inject(symptoms: Set<Symptom>, delegate: StartDateViewControllerDelegate) {
+    func inject(symptoms: Set<Symptom>, delegate: StartDateViewControllerDelegate)
+    {
         self.symptoms = symptoms
         self.delegate = delegate
     }
 
-    private var startDate: Date? {
-        didSet {
-            guard let date = startDate else {
+    private var startDate: Date?
+    {
+        didSet
+        {
+            guard let date = startDate else
+            {
                 return
             }
 
@@ -39,10 +44,10 @@ class StartDateViewController: UIViewController {
 
     private let logger = Logger(label: String(describing: self))
 
-    @IBOutlet weak var label: UILabel!
-    @IBOutlet weak var errorView: UIView!
-    @IBOutlet weak var errorLabel: AccessibleErrorLabel!
-    @IBOutlet weak var button: StartDateButton!
+    @IBOutlet var label: UILabel!
+    @IBOutlet var errorView: UIView!
+    @IBOutlet var errorLabel: AccessibleErrorLabel!
+    @IBOutlet var button: StartDateButton!
 
     @IBOutlet var datePicker: UIPickerView!
 
@@ -56,10 +61,11 @@ class StartDateViewController: UIViewController {
 
     var dateOptions: [Date] = {
         let today = Date()
-        return (-27...0).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: today) }.reversed()
+        return (-27 ... 0).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: today) }.reversed()
     }()
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -67,11 +73,17 @@ class StartDateViewController: UIViewController {
         let question: String
         if symptoms.count > 1 {
             question = "SYMPTOMS_START_QUESTION"
-        } else if symptoms == [.temperature] {
+        }
+        else if symptoms == [.temperature]
+        {
             question = "TEMPERATURE_START_QUESTION"
-        } else if symptoms == [.cough] {
+        }
+        else if symptoms == [.cough]
+        {
             question = "COUGH_START_QUESTION"
-        } else {
+        }
+        else
+        {
             logger.critical("Unknown symptoms: \(String(describing: symptoms))")
             question = "SYMPTOMS_START_QUESTION"
         }
@@ -82,34 +94,38 @@ class StartDateViewController: UIViewController {
         button.text = "SELECT_START_DATE".localized
     }
 
-    @IBAction func buttonTapped(_ sender: StartDateButton) {
+    @IBAction func buttonTapped(_: StartDateButton)
+    {
         startDate = dateOptions[datePicker.selectedRow(inComponent: 0)]
         showPicker()
     }
 
     // MARK: - Support for Dyanmic Type
-    
-    private func showPicker() {
+
+    private func showPicker()
+    {
         scroll(after: {
             self.datePicker.isHidden = !self.datePicker.isHidden
-        }, to: self.datePicker)
+        }, to: datePicker)
     }
 
-    private func makeLabelForPickerRow() -> UILabel {
+    private func makeLabelForPickerRow() -> UILabel
+    {
         let label = UILabel()
         label.font = datePickerRowFont
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
     }
-        
+
     private lazy var datePickerRowHeight: CGFloat = {
-        return dateOptions.map(heightForRowWithDate).max()!
+        dateOptions.map(heightForRowWithDate).max()!
     }()
-    
+
     private lazy var datePickerRowFont: UIFont? = {
         let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-        guard let size = descriptor.object(forKey: .size) as? NSNumber else {
+        guard let size = descriptor.object(forKey: .size) as? NSNumber else
+        {
             logger.error("Could not get size of body font")
             return nil
         }
@@ -117,8 +133,9 @@ class StartDateViewController: UIViewController {
         return UIFont.systemFont(ofSize: CGFloat(size.doubleValue))
 
     }()
-    
-    private func heightForRowWithDate(_ date: Date) -> CGFloat {
+
+    private func heightForRowWithDate(_ date: Date) -> CGFloat
+    {
         let max = CGSize(width: datePicker.bounds.size.width, height: .greatestFiniteMagnitude)
         let label = makeLabelForPickerRow()
         label.frame = CGRect(origin: .zero, size: max)
@@ -127,68 +144,81 @@ class StartDateViewController: UIViewController {
         let spacing = CGFloat(16)
         return label.frame.height + spacing
     }
-
 }
 
-extension StartDateViewController: UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+extension StartDateViewController: UIPickerViewDataSource
+{
+    func numberOfComponents(in _: UIPickerView) -> Int
+    {
         return 1
     }
 
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_: UIPickerView, numberOfRowsInComponent _: Int) -> Int
+    {
         return dateOptions.count
     }
-    
-    
-    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView
+    {
         let label = view as? UILabel ?? makeLabelForPickerRow()
         label.text = self.pickerView(pickerView, titleForRow: row, forComponent: component)
         label.numberOfLines = 0
         return label
     }
-    
-    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+
+    func pickerView(_: UIPickerView, rowHeightForComponent _: Int) -> CGFloat
+    {
         return datePickerRowHeight
     }
 }
 
-extension StartDateViewController: UIPickerViewDelegate {
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+extension StartDateViewController: UIPickerViewDelegate
+{
+    func pickerView(_: UIPickerView, titleForRow row: Int, forComponent _: Int) -> String?
+    {
         return titleForPickerRowWithDate(dateOptions[row])
     }
 
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    func pickerView(_: UIPickerView, didSelectRow row: Int, inComponent _: Int)
+    {
         startDate = dateOptions[row]
     }
-    
-    private func titleForPickerRowWithDate(_ date: Date) -> String {
+
+    private func titleForPickerRowWithDate(_ date: Date) -> String
+    {
         return dateFormatter.string(from: date)
     }
 }
 
-class StartDateButton: ButtonWithDynamicType {
-    override var canBecomeFirstResponder: Bool {
+class StartDateButton: ButtonWithDynamicType
+{
+    override var canBecomeFirstResponder: Bool
+    {
         true
     }
 
     private var _inputView: UIView?
-    override var inputView: UIView? {
+    override var inputView: UIView?
+    {
         get { _inputView }
         set { _inputView = newValue }
     }
 
     private var _inputAccessoryView: UIView?
-    override var inputAccessoryView: UIView? {
+    override var inputAccessoryView: UIView?
+    {
         get { _inputAccessoryView }
         set { _inputAccessoryView = newValue }
     }
 
-    var text: String? {
+    var text: String?
+    {
         get { title(for: .normal) }
         set { setTitle(newValue, for: .normal) }
     }
 
-    override func awakeFromNib() {
+    override func awakeFromNib()
+    {
         super.awakeFromNib()
 
         layer.cornerRadius = 8

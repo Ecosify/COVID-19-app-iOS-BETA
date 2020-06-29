@@ -9,8 +9,10 @@
 import UIKit
 
 enum Appearance {}
-extension Appearance {
-    static func setup() {
+extension Appearance
+{
+    static func setup()
+    {
         UILabel.appearance().textColor = UIColor(named: "NHS Text")
         UILabel.appearance().adjustsFontForContentSizeCategory = true
         UILabel.appearance().numberOfLines = 0

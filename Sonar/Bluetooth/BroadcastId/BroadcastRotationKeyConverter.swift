@@ -11,8 +11,10 @@ import Security
 
 import Logging
 
-struct BroadcastRotationKeyConverter {
-    func fromData(_ data: Data) throws -> SecKey {
+struct BroadcastRotationKeyConverter
+{
+    func fromData(_ data: Data) throws -> SecKey
+    {
         var scanner = ASN1Scanner(data: data)
         try scanner.scanSequenceHeader()
 
@@ -21,23 +23,25 @@ struct BroadcastRotationKeyConverter {
 
         let publicKey = try scanner.scanBitString()
         let publicKeyIsUncompressed = publicKey.starts(with: [0x00, 0x04])
-        guard publicKeyIsUncompressed else {
+        guard publicKeyIsUncompressed else
+        {
             logger.critical("Invalid ASN1 for public key. Starts with \(publicKey[0])")
             throw EllipticCurveErrors.invalidASN1
         }
 
-        let x = publicKey[publicKey.startIndex+2..<publicKey.startIndex+2+32]
-        let y = publicKey[publicKey.startIndex+2+32..<publicKey.startIndex+2+32+32]
+        let x = publicKey[publicKey.startIndex + 2 ..< publicKey.startIndex + 2 + 32]
+        let y = publicKey[publicKey.startIndex + 2 + 32 ..< publicKey.startIndex + 2 + 32 + 32]
         let data = Data([4]) + x + y
 
         var error: Unmanaged<CFError>?
         let attrs = [
             kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecAttrKeyClass:  kSecAttrKeyClassPublic,
-            kSecAttrKeySizeInBits: 256
+            kSecAttrKeyClass: kSecAttrKeyClassPublic,
+            kSecAttrKeySizeInBits: 256,
         ] as CFDictionary
 
-        guard let privateKey = SecKeyCreateWithData(data as CFData, attrs, &error) else {
+        guard let privateKey = SecKeyCreateWithData(data as CFData, attrs, &error) else
+        {
             logger.critical("Encountered error creating public key from data: \(error!.takeRetainedValue().localizedDescription)")
             throw EllipticCurveErrors.publicKeyConversionFailed
         }
@@ -46,7 +50,8 @@ struct BroadcastRotationKeyConverter {
     }
 }
 
-fileprivate enum EllipticCurveErrors: Error {
+private enum EllipticCurveErrors: Error
+{
     case invalidASN1
     case publicKeyConversionFailed
     case unhandledCFError(_ error: CFError)
@@ -55,10 +60,9 @@ fileprivate enum EllipticCurveErrors: Error {
     case unhandledKeychainError(_ status: OSStatus)
 }
 
-
 /*
  Copied with permission from Zulkhe Engineering
-https://github.com/zuhlke/AppStoreConnector/blob/master/AppStoreConnector/AppStoreConnector/Sources/Crypto/ASN1Scanner.swift
+ https://github.com/zuhlke/AppStoreConnector/blob/master/AppStoreConnector/AppStoreConnector/Sources/Crypto/ASN1Scanner.swift
 
  MIT License
 
@@ -81,78 +85,94 @@ https://github.com/zuhlke/AppStoreConnector/blob/master/AppStoreConnector/AppSto
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-*/
-fileprivate struct ASN1Scanner {
-    private struct Tag {
+ */
+private struct ASN1Scanner
+{
+    private struct Tag
+    {
         var rawValue: UInt8
         static let integer = Tag(rawValue: 0x02)
         static let bitString = Tag(rawValue: 0x03)
         static let octet = Tag(rawValue: 0x04)
         static let objectIdentifier = Tag(rawValue: 0x06)
         static let sequence = Tag(rawValue: 0x30)
-        static func tagged(_ value: UInt8) -> Tag {
-            return Tag(rawValue: value + 0xa0)
+        static func tagged(_ value: UInt8) -> Tag
+        {
+            return Tag(rawValue: value + 0xA0)
         }
     }
 
-    private enum Errors: Error {
+    private enum Errors: Error
+    {
         case invalidStream
     }
 
     var stream: Data
 
-    init(data: Data) {
-        self.stream = data
+    init(data: Data)
+    {
+        stream = data
     }
 
     @discardableResult
-    mutating func scanSequenceHeader() throws -> Int {
+    mutating func scanSequenceHeader() throws -> Int
+    {
         return try scanLength(for: .sequence)
     }
 
     @discardableResult
-    mutating func scanTagHeader(_ value: UInt8) throws -> Int {
+    mutating func scanTagHeader(_ value: UInt8) throws -> Int
+    {
         return try scanLength(for: .tagged(value))
     }
 
     @discardableResult
-    mutating func scanInteger() throws -> Data {
+    mutating func scanInteger() throws -> Data
+    {
         return try scanData(for: .integer)
     }
 
     @discardableResult
-    mutating func scanBitString() throws -> Data {
+    mutating func scanBitString() throws -> Data
+    {
         return try scanData(for: .bitString)
     }
 
     @discardableResult
-    mutating func scanOctet() throws -> Data {
+    mutating func scanOctet() throws -> Data
+    {
         return try scanData(for: .octet)
     }
 
     @discardableResult
-    mutating func scanObjectIdentifier() throws -> Data {
+    mutating func scanObjectIdentifier() throws -> Data
+    {
         return try scanData(for: .objectIdentifier)
     }
 
     @discardableResult
-    mutating func scanTag(_ value: UInt8) throws -> Data {
+    mutating func scanTag(_ value: UInt8) throws -> Data
+    {
         return try scanData(for: .tagged(value))
     }
 
     @discardableResult
-    private mutating func scanData(for tag: Tag) throws -> Data {
+    private mutating func scanData(for tag: Tag) throws -> Data
+    {
         let length = try scanLength(for: tag)
 
-        defer {
+        defer
+        {
             stream = stream.dropFirst(length)
         }
         return stream.prefix(length)
     }
 
     @discardableResult
-    private mutating func scanLength(for tag: Tag) throws -> Int {
-        guard stream.popFirst() == tag.rawValue, !stream.isEmpty else {
+    private mutating func scanLength(for tag: Tag) throws -> Int
+    {
+        guard stream.popFirst() == tag.rawValue, !stream.isEmpty else
+        {
             throw Errors.invalidStream
         }
 
@@ -160,27 +180,32 @@ fileprivate struct ASN1Scanner {
         let length: Int
         if first & 0x80 == 0x00 {
             length = Int(first)
-        } else {
+        }
+        else
+        {
             let lenghOfLength = Int(first & 0x7F)
-            guard stream.count >= lenghOfLength else {
+            guard stream.count >= lenghOfLength else
+            {
                 throw Errors.invalidStream
             }
 
             var result = 0
-            for _ in 0..<lenghOfLength {
+            for _ in 0 ..< lenghOfLength
+            {
                 result = 256 * result + Int(stream.popFirst()!)
             }
             length = result
         }
 
-        guard stream.count >= length else {
+        guard stream.count >= length else
+        {
             throw Errors.invalidStream
         }
 
         return length
     }
-
 }
 
-// Mark: - Logging
-fileprivate let logger = Logger(label: "BTLE")
+// MARK: - Logging
+
+private let logger = Logger(label: "BTLE")

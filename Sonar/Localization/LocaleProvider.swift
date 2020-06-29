@@ -8,13 +8,13 @@
 
 import Foundation
 
-protocol LocaleProvider {
+protocol LocaleProvider
+{
     var locale: Locale { get }
 }
 
-
-class AutoupdatingCurrentLocaleProvider: LocaleProvider {
-    var locale: Locale {
-        get { return Locale.autoupdatingCurrent }
-    }
+class AutoupdatingCurrentLocaleProvider: LocaleProvider
+{
+    var locale: Locale
+    { return Locale.autoupdatingCurrent }
 }
